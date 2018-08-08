@@ -31,17 +31,17 @@ class App extends Component {
     }
   }
 
-  _stop = () => {
-    pb.stop();
-  }
-
   _fileError = err => {
     console.log(err);
   }
 
   render() {
     let tracks = this.state.trackList.map((track, index) => (
-      <button key={index} onClick={() => {this._play(track)}}>{track.name}</button>
+      <tr>
+        <td>
+          <button key={index} onClick={() => {this._play(track)}}>{track.name}</button>
+        </td>
+      </tr>
     ));
     if (tracks.length === 0) {
       tracks = [];
@@ -51,12 +51,13 @@ class App extends Component {
         <FilePicker
           extensions={['wav', 'mp3', 'ogg']}
           onChange={this._fileChange}
-          onError={this._fileError}
-        >
+          onError={this._fileError}>
           <button>Select Sound</button>
         </FilePicker>
-        <button onClick={this._stop}>Stop</button>
+        <button onClick={pb.stop()}>Stop</button>
+        <table>
         {tracks}
+        </table>
       </div>
     );
   }

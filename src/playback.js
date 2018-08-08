@@ -13,6 +13,7 @@ class Playback {
   constructor() {
     this.ac = new AudioContext();
     this.dest = this.ac.createMediaStreamDestination();
+    this.sources = [];
   }
 
    setOutputs = async function() {
@@ -36,6 +37,7 @@ class Playback {
   // Some helper methods to control playback of our outputs
   play = (track) => {
     const source = this.ac.createBufferSource();
+    this.sources.push(source);
     source.connect(this.dest);
     let buffer = fs.readFileSync(track.path);
     buffer = toArrayBuffer(buffer);
@@ -48,6 +50,7 @@ class Playback {
 
   stop = () => {
     this.outputs.forEach(function(o){o.pause();});
+    this.sources.forEach(function(s){s.stop();});
   }
 }
 
