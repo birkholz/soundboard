@@ -12,17 +12,28 @@ class App extends Component {
 
     this.state = {
       trackList: [],
+      trackChanging: null
     };
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', (event) => {
+      this.state.trackList.forEach((track) => {
+        if (track.key == event.key) {
+          this._play(track.file);
+        }
+      });
+    });
   }
 
   _fileChange = file => {
     let trackList = this.state.trackList;
-    trackList.push(file);
+    trackList.push({file, key:null});
     this.setState({trackList});
   }
 
   _play = (track) => {
-    if (!pb.outputs) {
+    if (pb.outputs != []) {
       pb.setOutputs().then(() => {
         pb.play(track);
       });
@@ -35,11 +46,33 @@ class App extends Component {
     console.log(err);
   }
 
+  _changeKey = (track) => {
+    this.setState({trackChanging: track});
+    this.listener = document.addEventListener('keydown', this._finishKey);
+  }
+
+  _finishKey = (event) => {
+    const {trackList, trackChanging} = this.state;
+    if (trackChanging) {
+      trackList.forEach((track) => {
+        if (track === trackChanging) track.key = event.key;
+      });
+      this.setState({trackList, trackChanging: null});
+    }
+    delete this.listener;
+  }
+
   render() {
-    let tracks = this.state.trackList.map((track, index) => (
+    const { trackList, trackChanging } = this.state;
+
+    let tracks = trackList.map((track, index) => (
       <tr>
         <td>
-          <button key={index} onClick={() => {this._play(track)}}>{track.name}</button>
+          <button key={index} onClick={() => {this._play(track.file)}}>{track.file.name}</button>
+        </td>
+        <td>
+          <span>Key: {track.key}</span>
+          <button onClick={() => {this._changeKey(track)}} disabled={trackChanging != null}>{track === trackChanging ? 'Press any key' : 'Change'}</button>
         </td>
       </tr>
     ));
@@ -54,7 +87,7 @@ class App extends Component {
           onError={this._fileError}>
           <button>Select Sound</button>
         </FilePicker>
-        <button onClick={pb.stop()}>Stop</button>
+        <button onClick={() => {pb.stop()}}>Stop</button>
         <table>
         {tracks}
         </table>

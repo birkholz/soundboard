@@ -14,6 +14,7 @@ class Playback {
     this.ac = new AudioContext();
     this.dest = this.ac.createMediaStreamDestination();
     this.sources = [];
+    this.outputs = [];
   }
 
    setOutputs = async function() {
