@@ -1,0 +1,38 @@
+{
+  "name": "soundboard",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-scripts": "1.1.4"
+  },
+  "devDependencies": {
+    "electron": "^2.0.6",
+    "electron-builder": "^20.27.1",
+    "foreman": "^3.0.1"
+  },
+  "main": "src/electron-starter.js",
+  "homepage": "./",
+  "scripts": {
+    "start": "nf start -p 3000",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-start": "node src/electron-wait-react",
+    "react-start": "react-scripts start",
+    "pack": "build --dir",
+    "dist": "npm run build && build",
+    "postinstall": "install-app-deps"
+  },
+  "build": {
+    "appId": "com.birkholz.soundboard",
+    "win": {
+      "iconUrl": "https://cdn2.iconfinder.com/data/icons/designer-skills/128/react-256.png"
+    },
+    "directories": {
+      "buildResources": "public"
+    }
+  }
+}
