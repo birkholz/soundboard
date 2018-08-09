@@ -16,6 +16,7 @@
     "@types/node": "^10.5.7",
     "@types/react": "^16.4.8",
     "@types/react-dom": "^16.0.7",
+    "cross-env": "^5.2.0",
     "electron": "^2.0.6",
     "electron-builder": "^20.27.1",
     "foreman": "^3.0.1",
@@ -30,7 +31,7 @@
     "eject": "react-scripts-ts eject",
     "electron": "electron .",
     "electron-start": "node src/electron-wait-react",
-    "react-start": "react-scripts-ts start",
+    "react-start": "cross-env BROWSER=none react-scripts-ts start",
     "pack": "build --dir",
     "dist": "npm run build && build",
     "postinstall": "install-app-deps"
