@@ -12,7 +12,9 @@ const tryConnection = () => client.connect({port: port}, () => {
     console.log('starting electron');
     startedElectron = true;
     const spawn = require('child_process').spawn;
-    const runner = spawn('npm', ['run', 'electron']);
+    const npmProcessName = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
+
+    const runner = spawn(npmProcessName, ['run', 'electron']);
 
     runner.stdout.on('data', function (data) {
         console.log(data.toString());
