@@ -8,23 +8,29 @@
     "@blueprintjs/select": "^3.1.0",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "react-scripts-ts": "^2.17.0"
   },
   "devDependencies": {
+    "@types/jest": "^23.3.1",
+    "@types/node": "^10.5.7",
+    "@types/react": "^16.4.8",
+    "@types/react-dom": "^16.0.7",
     "electron": "^2.0.6",
     "electron-builder": "^20.27.1",
-    "foreman": "^3.0.1"
+    "foreman": "^3.0.1",
+    "typescript": "^3.0.1"
   },
   "main": "src/electron-starter.js",
   "homepage": "./",
   "scripts": {
     "start": "nf start -p 3000",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
     "electron": "electron .",
     "electron-start": "node src/electron-wait-react",
-    "react-start": "react-scripts start",
+    "react-start": "react-scripts-ts start",
     "pack": "build --dir",
     "dist": "npm run build && build",
     "postinstall": "install-app-deps"
