@@ -6,6 +6,7 @@ import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 
 import FilePicker from './components/FilePicker';
 import Playback from './playback';
+import { Devices } from './components/Devices';
 
 const pb = new Playback();
 
@@ -14,11 +15,10 @@ class App extends Component {
     super(...args);
 
     this.state = {
+      playback: pb,
       trackList: [],
       trackChanging: null,
-      devices: [],
-      device1: null,
-      device2: null
+      outputs: [],
     };
   }
 
@@ -26,8 +26,6 @@ class App extends Component {
     pb.getDevices().then((devices) => {
       this.setState({
         devices,
-        device1: devices[0],
-        device2: devices[1]
       });
     });
   }
@@ -49,10 +47,7 @@ class App extends Component {
   }
 
   _play = (track) => {
-    const { device1, device2 } = this.state;
-    pb.setOutputs(device1, device2).then(() => {
       pb.play(track);
-    });
   }
 
   _fileError = err => {
@@ -115,53 +110,9 @@ class App extends Component {
     );
   }
 
-  deviceRenderer = (device, { handleClick, modifiers }) => {
-    return (
-      <MenuItem
-        active={modifiers.active}
-        disabled={modifiers.disabled}
-        key={device.deviceId}
-        text={device.label}
-        onClick={handleClick}
-      />
-    )
-  }
-
-  _renderDevices() {
-    const {devices, device1, device2} = this.state;
-
-    return (
-      <FormGroup>
-        <Select
-          id="device1"
-          label="Output Device 1"
-          filterable={false}
-          items={devices}
-          itemPredicate={(_, item) => item !== device2}
-          itemRenderer={this.deviceRenderer}
-          onItemSelect={(item) => {
-            this.setState({device1: item})
-          }}
-          noResults={<MenuItem disabled={true} text="None" />}>
-          <Button rightIcon="caret-down"
-                  text={device1 ? device1.label : "(Loading...)"} />
-        </Select>
-        <Select
-          id="device2"
-          label="Output Device 2"
-          filterable={false}
-          items={devices}
-          itemPredicate={(_, item) => item !== device1}
-          itemRenderer={this.deviceRenderer}
-          onItemSelect={(item) => {
-            this.setState({device2: item})
-          }}
-          noResults={<MenuItem disabled={true} text="None" />}>
-          <Button rightIcon="caret-down"
-                  text={device2 ? device2.label : "(Loading...)"} />
-        </Select>
-      </FormGroup>
-    );
+  onItemSelect = (device: MediaDeviceInfo, outputNumber: OutputNumber) => {
+    pb.setOutput(device, outputNumber)
+      .then(() => this.setState({ pb: pb }))
   }
 
   render() {
@@ -171,7 +122,7 @@ class App extends Component {
     }
     return (
       <div className="App">
-        {this._renderDevices()}
+        <Devices deviceList={this.state.devices} onItemSelect={pb.setOutput} />
         <FilePicker
           extensions={['wav', 'mp3', 'ogg']}
           onChange={this._fileChange}
