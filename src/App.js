@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button } from "@blueprintjs/core";
+import { Button, FormGroup, MenuItem } from "@blueprintjs/core";
+import { Select } from "@blueprintjs/select";
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 
@@ -14,14 +15,27 @@ class App extends Component {
 
     this.state = {
       trackList: [],
-      trackChanging: null
+      trackChanging: null,
+      devices: [],
+      device1: null,
+      device2: null
     };
+  }
+
+  componentWillMount() {
+    pb.getDevices().then((devices) => {
+      this.setState({
+        devices,
+        device1: devices[0],
+        device2: devices[1]
+      });
+    });
   }
 
   componentDidMount() {
     document.addEventListener('keydown', (event) => {
       this.state.trackList.forEach((track) => {
-        if (track.key === event.key) {
+        if (track.key === event.key && !this.state.trackChanging) {
           this._play(track.file);
         }
       });
@@ -35,13 +49,10 @@ class App extends Component {
   }
 
   _play = (track) => {
-    if (pb.outputs !== []) {
-      pb.setOutputs().then(() => {
-        pb.play(track);
-      });
-    } else {
+    const { device1, device2 } = this.state;
+    pb.setOutputs(device1, device2).then(() => {
       pb.play(track);
-    }
+    });
   }
 
   _fileError = err => {
@@ -104,6 +115,55 @@ class App extends Component {
     );
   }
 
+  deviceRenderer = (device, { handleClick, modifiers }) => {
+    return (
+      <MenuItem
+        active={modifiers.active}
+        disabled={modifiers.disabled}
+        key={device.deviceId}
+        text={device.label}
+        onClick={handleClick}
+      />
+    )
+  }
+
+  _renderDevices() {
+    const {devices, device1, device2} = this.state;
+
+    return (
+      <FormGroup>
+        <Select
+          id="device1"
+          label="Output Device 1"
+          filterable={false}
+          items={devices}
+          itemPredicate={(_, item) => item !== device2}
+          itemRenderer={this.deviceRenderer}
+          onItemSelect={(item) => {
+            this.setState({device1: item})
+          }}
+          noResults={<MenuItem disabled={true} text="None" />}>
+          <Button rightIcon="caret-down"
+                  text={device1 ? device1.label : "(Loading...)"} />
+        </Select>
+        <Select
+          id="device2"
+          label="Output Device 2"
+          filterable={false}
+          items={devices}
+          itemPredicate={(_, item) => item !== device1}
+          itemRenderer={this.deviceRenderer}
+          onItemSelect={(item) => {
+            this.setState({device2: item})
+          }}
+          noResults={<MenuItem disabled={true} text="None" />}>
+          <Button rightIcon="caret-down"
+                  text={device2 ? device2.label : "(Loading...)"} />
+        </Select>
+      </FormGroup>
+    );
+  }
+
   render() {
     let tracks = this.state.trackList.map(this.renderTrack);
     if (tracks.length === 0) {
@@ -111,6 +171,7 @@ class App extends Component {
     }
     return (
       <div className="App">
+        {this._renderDevices()}
         <FilePicker
           extensions={['wav', 'mp3', 'ogg']}
           onChange={this._fileChange}
