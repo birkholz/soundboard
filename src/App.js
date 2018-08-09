@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { Button } from "@blueprintjs/core";
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 
-import './App.css';
 import FilePicker from './components/FilePicker';
 import Playback from './playback';
 
@@ -19,7 +21,7 @@ class App extends Component {
   componentDidMount() {
     document.addEventListener('keydown', (event) => {
       this.state.trackList.forEach((track) => {
-        if (track.key == event.key) {
+        if (track.key === event.key) {
           this._play(track.file);
         }
       });
@@ -33,7 +35,7 @@ class App extends Component {
   }
 
   _play = (track) => {
-    if (pb.outputs != []) {
+    if (pb.outputs !== []) {
       pb.setOutputs().then(() => {
         pb.play(track);
       });
@@ -53,29 +55,57 @@ class App extends Component {
 
   _finishKey = (event) => {
     const {trackList, trackChanging} = this.state;
+    const newKey = event.keyCode === 27 ? null : event.key;
     if (trackChanging) {
       trackList.forEach((track) => {
-        if (track === trackChanging) track.key = event.key;
+        if (track === trackChanging) track.key = newKey;
       });
       this.setState({trackList, trackChanging: null});
     }
     delete this.listener;
   }
 
-  render() {
-    const { trackList, trackChanging } = this.state;
+  _deleteTrack = (track) => {
+    const trackList = this.state.trackList.filter(t => t !== track);
+    pb.stop();
+    this.setState({trackList});
+  }
 
-    let tracks = trackList.map((track, index) => (
+  _keyText = (track) => {
+    if (track === this.state.trackChanging) return 'Press any key';
+    else if (!track.key) return '';
+    else return track.key;
+  }
+
+  renderTrack = (track, index) => {
+    const { trackChanging } = this.state;
+    return (
       <tr>
         <td>
-          <button key={index} onClick={() => {this._play(track.file)}}>{track.file.name}</button>
+          <Button
+            key={index}
+            onClick={() => {this._play(track.file)}}
+            text={track.file.name}/>
         </td>
         <td>
-          <span>Key: {track.key}</span>
-          <button onClick={() => {this._changeKey(track)}} disabled={trackChanging != null}>{track === trackChanging ? 'Press any key' : 'Change'}</button>
+          <Button
+            onClick={() => {this._changeKey(track)}}
+            disabled={trackChanging !== null}
+            icon={!track.key && !trackChanging ? 'insert' : null}
+            text={this._keyText(track)} />
+        </td>
+        <td>
+          <Button
+            onClick={() => {this._deleteTrack(track)}}
+            disabled={trackChanging !== null}
+            icon="trash"/>
         </td>
       </tr>
-    ));
+    );
+  }
+
+  render() {
+    let tracks = this.state.trackList.map(this.renderTrack);
     if (tracks.length === 0) {
       tracks = [];
     }
@@ -85,11 +115,19 @@ class App extends Component {
           extensions={['wav', 'mp3', 'ogg']}
           onChange={this._fileChange}
           onError={this._fileError}>
-          <button>Select Sound</button>
+          <Button text="Add Sound"/>
         </FilePicker>
-        <button onClick={() => {pb.stop()}}>Stop</button>
-        <table>
-        {tracks}
+        <Button onClick={() => {pb.stop()}} text="Stop"/>
+        <table class="bp3-html-table bp3-html-table-striped">
+          <thead>
+            <tr>
+              <th>Track</th>
+              <th>Keybinding</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tracks}
+          </tbody>
         </table>
       </div>
     );
