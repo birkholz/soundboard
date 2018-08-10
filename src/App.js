@@ -15,24 +15,26 @@ class App extends Component {
     super(...args);
 
     this.state = {
-      playback: pb,
-      trackList: [],
+      tracks: [],
       trackChanging: null,
+      devices: [],
       outputs: [],
     };
   }
 
   componentWillMount() {
     pb.getDevices().then((devices) => {
+      const outputs = [devices[0], devices[1]];
       this.setState({
         devices,
+        outputs
       });
     });
   }
 
   componentDidMount() {
     document.addEventListener('keydown', (event) => {
-      this.state.trackList.forEach((track) => {
+      this.state.tracks.forEach((track) => {
         if (track.key === event.key && !this.state.trackChanging) {
           this._play(track.file);
         }
@@ -41,9 +43,9 @@ class App extends Component {
   }
 
   _fileChange = file => {
-    let trackList = this.state.trackList;
-    trackList.push({file, key:null});
-    this.setState({trackList});
+    let tracks = this.state.tracks;
+    tracks.push({file, key:null});
+    this.setState({tracks});
   }
 
   _play = (track) => {
@@ -60,21 +62,21 @@ class App extends Component {
   }
 
   _finishKey = (event) => {
-    const {trackList, trackChanging} = this.state;
+    const {tracks, trackChanging} = this.state;
     const newKey = event.keyCode === 27 ? null : event.key;
     if (trackChanging) {
-      trackList.forEach((track) => {
+      tracks.forEach((track) => {
         if (track === trackChanging) track.key = newKey;
       });
-      this.setState({trackList, trackChanging: null});
+      this.setState({tracks, trackChanging: null});
     }
     delete this.listener;
   }
 
   _deleteTrack = (track) => {
-    const trackList = this.state.trackList.filter(t => t !== track);
+    const tracks = this.state.tracks.filter(t => t !== track);
     pb.stop();
-    this.setState({trackList});
+    this.setState({tracks});
   }
 
   _keyText = (track) => {
@@ -86,10 +88,9 @@ class App extends Component {
   renderTrack = (track, index) => {
     const { trackChanging } = this.state;
     return (
-      <tr>
+      <tr key={index}>
         <td>
           <Button
-            key={index}
             onClick={() => {this._play(track.file)}}
             text={track.file.name}/>
         </td>
@@ -110,19 +111,41 @@ class App extends Component {
     );
   }
 
-  onItemSelect = (device: MediaDeviceInfo, outputNumber: OutputNumber) => {
-    pb.setOutput(device, outputNumber)
-      .then(() => this.setState({ pb: pb }))
+  onDeviceSelect = (device, outputNumber) => {
+    const outputs = this.state.outputs;
+    pb.setOutput(device)
+      .then((output) => {
+        outputs[outputNumber] = output;
+        this.setState({ outputs })
+      })
+  }
+
+  renderTable = (tracks) => {
+    if (!tracks.length) {
+      return;
+    }
+    return (
+      <table className="bp3-html-table bp3-html-table-striped">
+        <thead>
+          <tr>
+            <th>Track</th>
+            <th>Keybinding</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tracks.map(this.renderTrack)}
+        </tbody>
+      </table>
+    )
   }
 
   render() {
-    let tracks = this.state.trackList.map(this.renderTrack);
-    if (tracks.length === 0) {
-      tracks = [];
-    }
     return (
       <div className="App">
-        <Devices deviceList={this.state.devices} onItemSelect={pb.setOutput} />
+        <Devices
+          devices={this.state.devices}
+          outputs={this.state.outputs}
+          onItemSelect={this.onDeviceSelect} />
         <FilePicker
           extensions={['wav', 'mp3', 'ogg']}
           onChange={this._fileChange}
@@ -130,17 +153,7 @@ class App extends Component {
           <Button text="Add Sound"/>
         </FilePicker>
         <Button onClick={() => {pb.stop()}} text="Stop"/>
-        <table class="bp3-html-table bp3-html-table-striped">
-          <thead>
-            <tr>
-              <th>Track</th>
-              <th>Keybinding</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tracks}
-          </tbody>
-        </table>
+        {this.renderTable(this.state.tracks)}
       </div>
     );
   }

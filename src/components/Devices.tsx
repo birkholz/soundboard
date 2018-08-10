@@ -2,13 +2,12 @@ import { Button, FormGroup, MenuItem } from "@blueprintjs/core";
 import { IListItemsProps, ItemPredicate, Select } from "@blueprintjs/select";
 import * as React from "react";
 import { MouseEvent, SFC } from 'react';
-import Playback, { OutputNumber } from "../playback";
+import { OutputNumber } from "../playback";
 
 export interface DevicesProps {
     devices: MediaDeviceInfo[],
-    device1: MediaDeviceInfo,
-    device2: MediaDeviceInfo,
-    onItemSelect: Playback["setOutput"];
+    outputs: MediaDeviceInfo[]
+    onItemSelect: (device: MediaDeviceInfo, outputNumber: OutputNumber) => void;
 }
 
 interface DeviceRendererProps {
@@ -30,8 +29,8 @@ const DeviceRenderer = (device: MediaDeviceInfo, { handleClick, modifiers }: Dev
 
 const DeviceSelect = Select.ofType<MediaDeviceInfo>()
 
-const predicate = (deviceType: MediaDeviceInfo): ItemPredicate<MediaDeviceInfo> =>
-    (query, item) => item !== deviceType
+const predicate = (outputs: MediaDeviceInfo[]): ItemPredicate<MediaDeviceInfo> =>
+    (_, item) => outputs.indexOf(item) === -1
 
 const onSelect = (
     onItemSelect: DevicesProps["onItemSelect"],
@@ -41,8 +40,7 @@ const onSelect = (
 
 export const Devices: SFC<DevicesProps> = ({
     devices,
-    device1,
-    device2,
+    outputs,
     onItemSelect,
 }: DevicesProps) => {
     return (
@@ -50,22 +48,22 @@ export const Devices: SFC<DevicesProps> = ({
         <DeviceSelect
           filterable={false}
           items={devices}
-          itemPredicate={predicate(device2)}
+          itemPredicate={predicate(outputs)}
           itemRenderer={DeviceRenderer}
           onItemSelect={onSelect(onItemSelect, OutputNumber.One)}
           noResults={<MenuItem disabled={true} text="None" />}>
           <Button rightIcon="caret-down"
-                  text={device1 ? device1.label : "(Loading...)"} />
+                  text={outputs[0] ? outputs[0].label : "(Loading...)"} />
         </DeviceSelect>
         <DeviceSelect
           filterable={false}
           items={devices}
-          itemPredicate={predicate(device1)}
+          itemPredicate={predicate(outputs)}
           itemRenderer={DeviceRenderer}
           onItemSelect={onSelect(onItemSelect, OutputNumber.Two)}
           noResults={<MenuItem disabled={true} text="None" />}>
           <Button rightIcon="caret-down"
-                  text={device2 ? device2.label : "(Loading...)"} />
+                  text={outputs[1] ? outputs[1].label : "(Loading...)"} />
         </DeviceSelect>
       </FormGroup>
     );

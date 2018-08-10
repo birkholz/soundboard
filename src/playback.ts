@@ -1,5 +1,11 @@
-import * as fs from "fs";
-import { AudioHTMLAttributes } from "react";
+const fs = window.require('fs');
+
+declare global
+{
+  interface Window {
+    require: any;
+  }
+} 
 
 interface AudioElement extends HTMLAudioElement {
   setSinkId: (deviceId: string) => Promise<undefined>
@@ -18,28 +24,20 @@ function toArrayBuffer(buf: Buffer) {
     return ab;
 }
 
-type MaybeHTMLAudioElement = HTMLAudioElement | null
-
 export enum OutputNumber {
   One = 0,
   Two = 1,
 }
-// @ts-ignore
-interface DevicesMap {
-  [deviceId: string]: MediaDeviceInfo
-}
 
 class Playback {
-  ac: AudioContext
+  ac: AudioContext;
   dest: MediaStreamAudioDestinationNode;
   sources: AudioBufferSourceNode[];
-  outputs: [MaybeHTMLAudioElement, MaybeHTMLAudioElement]
 
   constructor() {
     this.ac = new AudioContext();
     this.dest = this.ac.createMediaStreamDestination();
     this.sources = [];
-    this.outputs = [null, null];
   }
 
   getDevices = async function() {
@@ -47,15 +45,15 @@ class Playback {
     return devices.filter(device => device.kind === 'audiooutput');
   }
 
-  setOutput = async (device: MediaDeviceInfo, outputNumber: OutputNumber) => {
+  setOutput = async (device: MediaDeviceInfo) => {
     const audio = new Audio();
     await audio.setSinkId(device.deviceId);
     audio.srcObject = this.dest.stream;
-    this.outputs[outputNumber] = audio;
     audio.play();
+    return audio;
   }
 
-  // Some helper methods to control playback of our outputs
+  // Some helper methods to control playback
   play = (track: File) => {
     const source = this.ac.createBufferSource();
     this.sources.push(source);
