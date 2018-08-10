@@ -59,7 +59,10 @@ class App extends Component<{}, AppState> {
   bootstrapDevicesAndAudio = async () => {
     const devices = await this.pb.getDevices();
     const [device1, device2] = devices;
-    const outputs: Outputs = [await this.pb.setOutput(device1), await this.pb.setOutput(device2)];
+    // Hack to default to Virtual cable init
+    // TODO: Replace with persistence of device
+    const cableInputDevice = devices.find(({ label }) => label.includes("CABLE Input")) || device2;
+    const outputs: Outputs = [await this.pb.setOutput(device1), await this.pb.setOutput(cableInputDevice)];
     this.setState({
       devices,
       outputs
