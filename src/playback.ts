@@ -1,32 +1,31 @@
-const fs = window.require('fs');
+const fs = window.require("fs");
 
-declare global
-{
+declare global {
   interface Window {
     require: any;
   }
 }
 
 export interface AudioElement extends HTMLAudioElement {
-  setSinkId: (deviceId: string) => Promise<undefined>
+  setSinkId: (deviceId: string) => Promise<undefined>;
 }
 
 declare var Audio: {
-  new(src?: string): AudioElement;
+  new (src?: string): AudioElement;
 };
 
 function toArrayBuffer(buf: Buffer) {
-    var ab = new ArrayBuffer(buf.length);
-    var view = new Uint8Array(ab);
-    for (var i = 0; i < buf.length; ++i) {
-        view[i] = buf[i];
-    }
-    return ab;
+  var ab = new ArrayBuffer(buf.length);
+  var view = new Uint8Array(ab);
+  for (var i = 0; i < buf.length; ++i) {
+    view[i] = buf[i];
+  }
+  return ab;
 }
 
 export enum OutputNumber {
   One = 0,
-  Two = 1,
+  Two = 1
 }
 
 export interface Output {
@@ -46,8 +45,8 @@ class Playback {
 
   getDevices = async function() {
     const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(device => device.kind === 'audiooutput');
-  }
+    return devices.filter(device => device.kind === "audiooutput");
+  };
 
   setOutput = async (device: MediaDeviceInfo): Promise<Output> => {
     const { label } = device;
@@ -56,7 +55,7 @@ class Playback {
     audioElement.srcObject = this.dest.stream;
     audioElement.play();
     return { audioElement, device, label };
-  }
+  };
 
   createTrackSource = async (track: File): Promise<AudioBufferSourceNode> => {
     const source = this.ac.createBufferSource();
@@ -65,7 +64,7 @@ class Playback {
     source.buffer = await this.ac.decodeAudioData(buffer);
 
     return source;
-  }
+  };
 }
 
 export default Playback;

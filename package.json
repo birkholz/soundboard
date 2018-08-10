@@ -19,7 +19,9 @@
     "cross-env": "^5.2.0",
     "electron": "^2.0.6",
     "electron-builder": "^20.27.1",
+    "electron-react-devtools": "^0.5.3",
     "foreman": "^3.0.1",
+    "prettier": "1.14.2",
     "typescript": "^3.0.1"
   },
   "main": "src/electron-starter.js",
