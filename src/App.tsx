@@ -5,6 +5,16 @@ import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
+import { keyToAccelerator } from "./keyUtils/";
+
+const electron = window.require('electron').remote;
+const { globalShortcut } = electron;
+
+declare global {
+  interface Window {
+    require: any;
+  }
+}
 
 interface Track {
   file: File;
@@ -69,14 +79,6 @@ class App extends Component<{}, AppState> {
   }
 
   componentDidMount() {
-    // Set global keybinding listener
-    document.addEventListener("keydown", event => {
-      this.state.tracks.forEach((track: Track) => {
-        if (track.key === event.key && !this.state.trackChanging) {
-          this.playSound(track.file);
-        }
-      });
-    });
     // Set listener to update device list if the devices available change
     navigator.mediaDevices.ondevicechange = () => {
       this.updateDevices().then((devices) => this.setState({devices}));
@@ -117,19 +119,24 @@ class App extends Component<{}, AppState> {
 
   changeKey = (track: Track) => {
     this.setState({ trackChanging: track });
+    if (track.key) {
+      globalShortcut.unregister(track.key);
+    }
     document.addEventListener("keydown", this.finishKey);
   };
 
   finishKey = (event: KeyboardEvent) => {
     const { tracks, trackChanging } = this.state;
-    const newKey = event.keyCode === 27 ? null : event.key;
-    if (trackChanging) {
+    if (trackChanging && event.keyCode !== 27) {
       tracks.forEach(track => {
         if (track === trackChanging) {
-          track.key = newKey;
+          track.key = keyToAccelerator(event);
+          globalShortcut.register(track.key, () => {
+            this.playSound(track.file);
+          });
         }
       });
-      this.setState({ tracks, trackChanging: null });
+    this.setState({ tracks, trackChanging: null });
     }
     document.removeEventListener("keydown", this.finishKey);
   };
