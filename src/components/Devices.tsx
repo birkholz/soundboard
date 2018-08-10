@@ -2,11 +2,12 @@ import { Button, FormGroup, MenuItem } from "@blueprintjs/core";
 import { IListItemsProps, ItemPredicate, Select } from "@blueprintjs/select";
 import * as React from "react";
 import { MouseEvent, SFC } from 'react';
+import { Outputs } from "../App";
 import { OutputNumber } from "../playback";
 
 export interface DevicesProps {
     devices: MediaDeviceInfo[],
-    outputs: MediaDeviceInfo[]
+    outputs: Outputs,
     onItemSelect: (device: MediaDeviceInfo, outputNumber: OutputNumber) => void;
 }
 
@@ -29,8 +30,8 @@ const DeviceRenderer = (device: MediaDeviceInfo, { handleClick, modifiers }: Dev
 
 const DeviceSelect = Select.ofType<MediaDeviceInfo>()
 
-const predicate = (outputs: MediaDeviceInfo[]): ItemPredicate<MediaDeviceInfo> =>
-    (_, item) => outputs.indexOf(item) === -1
+const predicate = (outputs: Outputs): ItemPredicate<MediaDeviceInfo> =>
+    (_, item) => outputs.some(({ device }) => device.deviceId === item.deviceId)
 
 const onSelect = (
     onItemSelect: DevicesProps["onItemSelect"],

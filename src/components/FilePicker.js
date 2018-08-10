@@ -1,10 +1,9 @@
-import React from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import FileInput from './FileInput'
 
 class FilePicker extends React.Component {
-
   static propTypes = {
     children: PropTypes.node.isRequired,
     onChange: PropTypes.func.isRequired,

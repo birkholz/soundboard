@@ -5,9 +5,9 @@ declare global
   interface Window {
     require: any;
   }
-} 
+}
 
-interface AudioElement extends HTMLAudioElement {
+export interface AudioElement extends HTMLAudioElement {
   setSinkId: (deviceId: string) => Promise<undefined>
 }
 
@@ -29,15 +29,19 @@ export enum OutputNumber {
   Two = 1,
 }
 
+export interface Output {
+  audioElement: AudioElement;
+  device: MediaDeviceInfo;
+  label: string;
+}
+
 class Playback {
   ac: AudioContext;
   dest: MediaStreamAudioDestinationNode;
-  sources: AudioBufferSourceNode[];
 
   constructor() {
     this.ac = new AudioContext();
     this.dest = this.ac.createMediaStreamDestination();
-    this.sources = [];
   }
 
   getDevices = async function() {
@@ -45,29 +49,22 @@ class Playback {
     return devices.filter(device => device.kind === 'audiooutput');
   }
 
-  setOutput = async (device: MediaDeviceInfo) => {
-    const audio = new Audio();
-    await audio.setSinkId(device.deviceId);
-    audio.srcObject = this.dest.stream;
-    audio.play();
-    return audio;
+  setOutput = async (device: MediaDeviceInfo): Promise<Output> => {
+    const { label } = device;
+    const audioElement = new Audio();
+    await audioElement.setSinkId(device.deviceId);
+    audioElement.srcObject = this.dest.stream;
+    audioElement.play();
+    return { audioElement, device, label };
   }
 
-  // Some helper methods to control playback
-  play = (track: File) => {
+  createTrackSource = async (track: File): Promise<AudioBufferSourceNode> => {
     const source = this.ac.createBufferSource();
-    this.sources.push(source);
     source.connect(this.dest);
     const buffer = toArrayBuffer(fs.readFileSync(track.path));
-    this.ac.decodeAudioData(buffer, (audioBuffer) => {
-      source.buffer = audioBuffer;
-      source.start();
-    });
-  }
+    source.buffer = await this.ac.decodeAudioData(buffer);
 
-  stop = () => {
-    this.sources.forEach(function(s){s.stop();});
-    this.sources = [];
+    return source;
   }
 }
 
