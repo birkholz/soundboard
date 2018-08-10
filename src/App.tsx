@@ -5,21 +5,24 @@ import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
-import Playback, { AudioElement, Output, OutputNumber } from "./playback";
 
-export interface Track {
+interface Track {
   file: File;
   // TODO: Edward *will* destroy this
   key: string | null;
+}
+
+interface AudioElement extends HTMLAudioElement {
+  setSinkId: (deviceId: string) => Promise<undefined>;
 }
 
 declare var Audio: {
   new (src?: string): AudioElement;
 };
 
-export type Outputs = [Output, Output];
+export type Outputs = [MediaDeviceInfo, MediaDeviceInfo];
 
-export interface AppState {
+interface AppState {
   tracks: Track[];
   trackChanging: Track | null;
   devices: MediaDeviceInfo[];
@@ -27,53 +30,46 @@ export interface AppState {
   sources: AudioBufferSourceNode[];
 }
 
+export enum OutputNumber {
+  One = 0,
+  Two = 1
+}
+
 class App extends Component<{}, AppState> {
-  pb: Playback;
   listener: EventListenerOrEventListenerObject;
+  playingTracks: AudioElement[];
 
   constructor(props: {}) {
     super(props);
-
-    this.pb = new Playback();
+    this.playingTracks = [];
 
     this.state = {
       tracks: [],
       trackChanging: null,
       devices: [],
-      outputs: [
-        {
-          label: "Device 1",
-          device: Object.create(MediaDeviceInfo),
-          audioElement: new Audio()
-        },
-        {
-          label: "Device 2",
-          device: Object.create(MediaDeviceInfo),
-          audioElement: new Audio()
-        }
-      ],
+      outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
       sources: []
     };
   }
 
-  bootstrapDevicesAndAudio = async () => {
-    const devices = await this.pb.getDevices();
-    const [device1, device2] = devices;
-    // Hack to default to Virtual cable init
-    // TODO: Replace with persistence of device
-    const cableInputDevice = devices.find(({ label }) => label.includes("CABLE Input")) || device2;
-    const outputs: Outputs = [await this.pb.setOutput(device1), await this.pb.setOutput(cableInputDevice)];
-    this.setState({
-      devices,
-      outputs
-    });
+
+  updateDevices = async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.filter(device => device.kind === "audiooutput");
   };
 
   componentWillMount() {
-    this.bootstrapDevicesAndAudio();
+    // Set initial outputs
+    this.updateDevices().then((devices) => {
+      const [device1, device2] = devices;
+      const cableInputDevice = devices.find(({ label }) => label.includes("CABLE Input")) || device2;
+      const outputs: Outputs = [device1, cableInputDevice];
+      this.setState({devices, outputs});
+    });
   }
 
   componentDidMount() {
+    // Set global keybinding listener
     document.addEventListener("keydown", event => {
       this.state.tracks.forEach((track: Track) => {
         if (track.key === event.key && !this.state.trackChanging) {
@@ -81,6 +77,10 @@ class App extends Component<{}, AppState> {
         }
       });
     });
+    // Set listener to update device list if the devices available change
+    navigator.mediaDevices.ondevicechange = () => {
+      this.updateDevices().then((devices) => this.setState({devices}));
+    }
   }
 
   changeFile = (file: File) => {
@@ -89,19 +89,26 @@ class App extends Component<{}, AppState> {
     this.setState({ tracks });
   };
 
-  playSound = (track: File) => {
-    this.pb.createTrackSource(track).then((source: AudioBufferSourceNode) => {
-      const sources = this.state.sources;
-      sources.push(source);
-      source.start();
-      this.setState({ sources });
-    });
-  };
+  playSound = async (track: File) => {
+    const [ output1, output2 ] = this.state.outputs;
+    const audio1 = new Audio();
+    const audio2 = new Audio();
+    await audio1.setSinkId(output1.deviceId);
+    await audio2.setSinkId(output2.deviceId);
+    const objUrl = URL.createObjectURL(track);
+    audio1.src = objUrl;
+    audio2.src = objUrl;
+    audio1.play();
+    audio2.play();
+    this.playingTracks.push(audio1);
+    this.playingTracks.push(audio2);
+  }
 
-  stopSound = () => {
-    const sources = this.state.sources;
-    sources.forEach(s => s.stop());
-    this.setState({ sources: [] });
+  stopAllSounds = () => {
+    this.playingTracks.forEach((a) => {
+      a.pause();
+    });
+    this.playingTracks = [];
   };
 
   logFileError = (err: string) => {
@@ -129,7 +136,7 @@ class App extends Component<{}, AppState> {
 
   deleteTrack = (track: Track) => {
     const tracks = this.state.tracks.filter(t => t !== track);
-    this.stopSound();
+    this.stopAllSounds();
     this.setState({ tracks });
   };
 
@@ -173,10 +180,8 @@ class App extends Component<{}, AppState> {
 
   onDeviceSelect = (device: MediaDeviceInfo, outputNumber: OutputNumber) => {
     const outputs = this.state.outputs;
-    this.pb.setOutput(device).then(output => {
-      outputs[outputNumber] = output;
-      this.setState({ outputs });
-    });
+    outputs[outputNumber] = device;
+    this.setState({ outputs });
   };
 
   renderTable = (tracks: Track[]) => {
@@ -203,7 +208,7 @@ class App extends Component<{}, AppState> {
         <FilePicker extensions={["wav", "mp3", "ogg"]} onChange={this.changeFile} onError={this.logFileError}>
           <Button text="Add Sound" />
         </FilePicker>
-        <Button onClick={this.stopSound} text="Stop" />
+        <Button onClick={this.stopAllSounds} text="Stop" />
         {this.renderTable(this.state.tracks)}
       </div>
     );
