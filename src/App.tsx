@@ -6,12 +6,12 @@ import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
-import { keycodeNames } from './keycodes';
+import { TrackList } from "./components/TrackList";
+import { keycodeNames } from "./keycodes";
 
 const electron = window.require("electron");
 
-
-interface Track {
+export interface Track {
   file: File;
   // TODO: Edward *will* destroy this
   keycode: number | null;
@@ -95,8 +95,7 @@ class App extends Component<{}, AppState> {
       const { trackChanging, listeningForKey, stopKey, tracks } = this.state;
       if (listeningForKey || trackChanging) {
         trackChanging ? this.setTrackKey(message) : this.setStopKey(message);
-      }
-      else {
+      } else {
         if (stopKey === message[codeType]) {
           this.stopAllSounds();
           return;
@@ -164,59 +163,21 @@ class App extends Component<{}, AppState> {
 
   changeStopKey = () => {
     this.setState({ listeningForKey: true });
-  }
+  };
 
   setStopKey = (event: IOHookKeydownEvent) => {
     const { listeningForKey } = this.state;
     if (listeningForKey) {
       const eventCode = event[codeType];
       const newKey = eventCode === ESCAPE_KEY ? null : eventCode;
-      this.setState({listeningForKey: false, stopKey: newKey});
+      this.setState({ listeningForKey: false, stopKey: newKey });
     }
-  }
+  };
 
   deleteTrack = (track: Track) => {
     const tracks = this.state.tracks.filter(t => t !== track);
     this.stopAllSounds();
     this.setState({ tracks });
-  };
-
-  getKeyText = (track: Track) => {
-    if (track === this.state.trackChanging) {
-      return "Press any key";
-    } else if (!track.keycode) {
-      return "";
-    } else {
-      return keycodeNames[track.keycode];
-    }
-  };
-
-  renderTrack = (track: Track, index: number) => {
-    const { listeningForKey } = this.state;
-    const canHaveKeyAssigned = !track.keycode && !listeningForKey;
-    const icon = canHaveKeyAssigned ? "insert" : undefined;
-
-    const onPlayClick = () => this.playSound(track.file);
-    const onChangeTrackKeyClick = () => this.changeTrackKey(track);
-    const onDeleteTrackClick = () => this.deleteTrack(track);
-    return (
-      <tr key={index}>
-        <td>
-          <Button onClick={onPlayClick} text={track.file.name} />
-        </td>
-        <td>
-          <Button
-            onClick={onChangeTrackKeyClick}
-            disabled={listeningForKey}
-            icon={icon}
-            text={this.getKeyText(track)}
-          />
-        </td>
-        <td>
-          <Button onClick={onDeleteTrackClick} disabled={listeningForKey} icon="trash" />
-        </td>
-      </tr>
-    );
   };
 
   onDeviceSelect = (device: MediaDeviceInfo, outputNumber: OutputNumber) => {
@@ -225,37 +186,19 @@ class App extends Component<{}, AppState> {
     this.setState({ outputs });
   };
 
-  renderTable = (tracks: Track[]) => {
-    if (!tracks.length) {
-      return;
-    }
-    return (
-      <table className="bp3-html-table bp3-html-table-striped">
-        <thead>
-          <tr>
-            <th>Track</th>
-            <th>Keybinding</th>
-          </tr>
-        </thead>
-        <tbody>{tracks.map(this.renderTrack)}</tbody>
-      </table>
-    );
-  };
-
   renderStop = () => {
     const { stopKey, listeningForKey } = this.state;
-    const stopIcon = !this.state.stopKey ? 'insert': undefined;
-    const stopText = keycodeNames[stopKey || -1] || '';
+    const stopIcon = !this.state.stopKey ? "insert" : undefined;
+    const stopText = keycodeNames[stopKey || -1] || "";
     return (
       <div>
         <Button onClick={this.stopAllSounds} text="Stop" />
-        <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={ listeningForKey } />
+        <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={listeningForKey} />
       </div>
-    )
-  }
+    );
+  };
 
   render() {
-
     return (
       <div className="App">
         <Devices devices={this.state.devices} outputs={this.state.outputs} onItemSelect={this.onDeviceSelect} />
@@ -263,7 +206,14 @@ class App extends Component<{}, AppState> {
           <Button text="Add Sound" />
         </FilePicker>
         {this.renderStop()}
-        {this.renderTable(this.state.tracks)}
+        <TrackList
+          tracks={this.state.tracks}
+          trackChanging={this.state.trackChanging}
+          listeningForKey={this.state.listeningForKey}
+          playSound={this.playSound}
+          changeTrackKey={this.changeTrackKey}
+          deleteTrack={this.deleteTrack}
+        />
       </div>
     );
   }
