@@ -2,6 +2,8 @@ import { Button } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
+// @ts-ignore
+import ElectronStore = require("electron-store");
 import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
@@ -10,6 +12,8 @@ import { getSoundFileAsDataURI } from "./helpers";
 import { keycodeNames } from "./keycodes";
 
 const electron = window.require("electron");
+const Store = window.require("electron-store");
+const store: ElectronStore<AppState> = new Store();
 
 interface Track {
   file: string;
@@ -29,9 +33,12 @@ declare var Audio: {
 export type Outputs = [MediaDeviceInfo, MediaDeviceInfo];
 
 interface AppState {
+  appInitialized: boolean;
   tracks: Track[];
   trackChanging: Track | null;
-  devices: MediaDeviceInfo[];
+  devices: {
+    [deviceId: string]: MediaDeviceInfo;
+  };
   outputs: Outputs;
   sources: AudioBufferSourceNode[];
 }
@@ -55,6 +62,13 @@ const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
 const ESCAPE_KEY = window.process.platform === "darwin" ? 1 : 27;
 
 class App extends Component<{}, AppState> {
+  static getDerivedStateFromProps(props: {}, state: AppState) {
+    if (state.appInitialized) {
+      store.set(state);
+    }
+    return state;
+  }
+
   listener: EventListenerOrEventListenerObject;
   playingTracks: AudioElement[];
 
@@ -62,31 +76,54 @@ class App extends Component<{}, AppState> {
     super(props);
     this.playingTracks = [];
 
-    this.state = {
-      tracks: [],
-      trackChanging: null,
-      devices: [],
-      outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
-      sources: []
-    };
+    if (store.size === 0) {
+      this.state = {
+        appInitialized: false,
+        tracks: [],
+        trackChanging: null,
+        devices: {},
+        outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
+        sources: []
+      };
+    } else {
+      this.state = {
+        ...store.store,
+        appInitialized: false
+      };
+    }
   }
 
-  updateDevices = async () => {
+  updateDevices = async (): Promise<{ [deviceId: string]: MediaDeviceInfo }> => {
     const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(device => device.kind === "audiooutput");
+    const audioDevices = devices.filter(device => device.kind === "audiooutput");
+    return audioDevices.reduce((audioDeviceMap, audioDevice) => {
+      return {
+        ...audioDeviceMap,
+        [audioDevice.deviceId]: audioDevice
+      };
+    }, {});
   };
 
-  componentWillMount() {
+  componentDidMount() {
     // Set initial outputs
     this.updateDevices().then(devices => {
-      const [device1, device2] = devices;
-      const cableInputDevice = devices.find(({ label }) => label.includes("CABLE Input")) || device2;
-      const outputs: Outputs = [device1, cableInputDevice];
-      this.setState({ devices, outputs });
+      const deviceList = Object.values(devices);
+      const [defaultDevice, backupDevice] = Object.values(deviceList);
+      const { outputs } = this.state;
+      let [output1, output2] = outputs;
+      if (!devices[output1.deviceId]) {
+        output1 = defaultDevice;
+      }
+      if (!devices[output2.deviceId]) {
+        // Attempt to default to VB CABLE Input
+        output2 = Object.values(deviceList).find(({ label }) => label.includes("CABLE Input")) || backupDevice;
+      }
+      this.setState({
+        devices,
+        outputs: [output1, output2]
+      });
     });
-  }
 
-  componentDidMount() {
     // Set global keybinding listener
     electron.ipcRenderer.on("keydown", (event: IpcRenderer, message: IOHookKeydownEvent) => {
       if (this.state.trackChanging) {
@@ -103,6 +140,8 @@ class App extends Component<{}, AppState> {
     navigator.mediaDevices.ondevicechange = () => {
       this.updateDevices().then(devices => this.setState({ devices }));
     };
+
+    this.setState({ appInitialized: true });
   }
 
   changeFile = (file: File) => {
@@ -231,7 +270,11 @@ class App extends Component<{}, AppState> {
   render() {
     return (
       <div className="App">
-        <Devices devices={this.state.devices} outputs={this.state.outputs} onItemSelect={this.onDeviceSelect} />
+        <Devices
+          devices={Object.values(this.state.devices)}
+          outputs={this.state.outputs}
+          onItemSelect={this.onDeviceSelect}
+        />
         <FilePicker extensions={["wav", "mp3", "ogg"]} onChange={this.changeFile} onError={this.logFileError}>
           <Button text="Add Sound" />
         </FilePicker>
