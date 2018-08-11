@@ -10,7 +10,10 @@ import FilePicker from "./components/FilePicker";
 
 const electron = window.require("electron");
 
-const ESCAPE_KEY = 27;
+export enum ESCAPE_KEY_KEYCODES {
+  MAC = 1,
+  WINDOWS = 27
+}
 
 interface Track {
   file: File;
@@ -86,6 +89,9 @@ class App extends Component<{}, AppState> {
   componentDidMount() {
     // Set global keybinding listener
     electron.ipcRenderer.on("keydown", (event: IpcRenderer, message: IOHookKeydownEvent) => {
+      if (this.state.trackChanging) {
+        this.finishKey(message);
+      }
       this.state.tracks.forEach((track: Track) => {
         if (track.keycode === message.rawcode && !this.state.trackChanging) {
           this.playSound(track.file);
@@ -130,12 +136,11 @@ class App extends Component<{}, AppState> {
 
   changeKey = (track: Track) => {
     this.setState({ trackChanging: track });
-    document.addEventListener("keydown", this.finishKey);
   };
 
-  finishKey = (event: KeyboardEvent) => {
+  finishKey = (event: IOHookKeydownEvent) => {
     const { tracks, trackChanging } = this.state;
-    const newKey = event.keyCode === ESCAPE_KEY ? null : event.keyCode;
+    const newKey = ESCAPE_KEY_KEYCODES[event.keycode] ? null : event.rawcode;
     if (trackChanging) {
       tracks.forEach(track => {
         if (track === trackChanging) {
@@ -144,7 +149,6 @@ class App extends Component<{}, AppState> {
       });
       this.setState({ tracks, trackChanging: null });
     }
-    document.removeEventListener("keydown", this.finishKey);
   };
 
   deleteTrack = (track: Track) => {
