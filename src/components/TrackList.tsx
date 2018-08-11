@@ -32,17 +32,17 @@ export const TrackList: SFC<TrackListProps> = ({
   deleteTrack
 }: TrackListProps) => {
   if (!tracks.length) {
-    return <div />;
+    return null;
   }
-  const trackRows: ReactNode[] = [];
-  tracks.forEach((track, index) => {
+
+  const trackRows: ReactNode[] = tracks.map((track, index) => {
     const canHaveKeyAssigned = !track.keycode && !listeningForKey;
     const icon = canHaveKeyAssigned ? "insert" : undefined;
 
     const onPlayClick = () => playSound(track.file);
     const onChangeTrackKeyClick = () => changeTrackKey(track);
     const onDeleteTrackClick = () => deleteTrack(track);
-    trackRows.push(
+    return (
       <tr key={index}>
         <td>
           <Button onClick={onPlayClick} text={track.file.name} />
@@ -61,6 +61,7 @@ export const TrackList: SFC<TrackListProps> = ({
       </tr>
     );
   });
+
   return (
     <table className="bp3-html-table bp3-html-table-striped">
       <thead>
