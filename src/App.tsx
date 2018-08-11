@@ -6,13 +6,14 @@ import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
-import { keycodeNames } from './keycodes';
+import { getSoundFileAsDataURI } from "./helpers";
+import { keycodeNames } from "./keycodes";
 
 const electron = window.require("electron");
 
-
 interface Track {
-  file: File;
+  file: string;
+  trackName: string;
   // TODO: Edward *will* destroy this
   keycode: number | null;
 }
@@ -105,16 +106,24 @@ class App extends Component<{}, AppState> {
   }
 
   changeFile = (file: File) => {
-    const tracks = this.state.tracks;
-    tracks.push({ file, keycode: null });
-    this.setState({ tracks });
+    getSoundFileAsDataURI(file).then((soundBinary: string) => {
+      this.setState({
+        tracks: [
+          ...this.state.tracks,
+          {
+            file: soundBinary,
+            trackName: file.name,
+            keycode: null
+          }
+        ]
+      });
+    });
   };
 
-  playSound = async (track: File) => {
+  playSound = async (track: string) => {
     const [output1, output2] = this.state.outputs;
-    const objUrl = URL.createObjectURL(track);
-    const audio1 = new Audio(objUrl);
-    const audio2 = new Audio(objUrl);
+    const audio1 = new Audio(track);
+    const audio2 = new Audio(track);
     await audio1.setSinkId(output1.deviceId);
     await audio2.setSinkId(output2.deviceId);
     audio1.play();
@@ -179,7 +188,7 @@ class App extends Component<{}, AppState> {
     return (
       <tr key={index}>
         <td>
-          <Button onClick={onPlayClick} text={track.file.name} />
+          <Button onClick={onPlayClick} text={track.trackName} />
         </td>
         <td>
           <Button
