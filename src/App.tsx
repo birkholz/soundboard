@@ -2,18 +2,14 @@ import { Button } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
-import { names as keycodeNames } from "keycode";
 import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
+import { keycodeNames } from './keycodes';
 
 const electron = window.require("electron");
 
-export enum ESCAPE_KEY_KEYCODES {
-  MAC = 1,
-  WINDOWS = 27
-}
 
 interface Track {
   file: File;
@@ -54,7 +50,9 @@ export interface IOHookKeydownEvent {
   metaKey: boolean;
 }
 
-const codeType = process.platform === "darwin" ? "keycode" : "rawcode";
+const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
+const ESCAPE_KEY = window.process.platform === "darwin" ? 1 : 27;
+
 class App extends Component<{}, AppState> {
   listener: EventListenerOrEventListenerObject;
   playingTracks: AudioElement[];
@@ -92,6 +90,7 @@ class App extends Component<{}, AppState> {
     electron.ipcRenderer.on("keydown", (event: IpcRenderer, message: IOHookKeydownEvent) => {
       if (this.state.trackChanging) {
         this.finishKey(message);
+        return;
       }
       this.state.tracks.forEach((track: Track) => {
         if (track.keycode === message[codeType] && !this.state.trackChanging) {
@@ -142,7 +141,7 @@ class App extends Component<{}, AppState> {
   finishKey = (event: IOHookKeydownEvent) => {
     const { tracks, trackChanging } = this.state;
     const eventCode = event[codeType];
-    const newKey = ESCAPE_KEY_KEYCODES[eventCode] ? null : eventCode;
+    const newKey = eventCode === ESCAPE_KEY ? null : eventCode;
     if (trackChanging) {
       tracks.forEach(track => {
         if (track === trackChanging) {
