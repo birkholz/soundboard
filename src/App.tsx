@@ -189,6 +189,9 @@ class App extends Component<{}, AppState> {
   };
 
   deleteTrack = (track: Track) => {
+    if (track.key && globalShortcut.isRegistered(track.key)) {
+      globalShortcut.unregister(track.key);
+    }
     const tracks = this.state.tracks.filter(t => t !== track);
     this.stopAllSounds();
     this.setState({ tracks });
