@@ -6,6 +6,8 @@
     "@blueprintjs/core": "^3.2.0",
     "@blueprintjs/icons": "^3.0.0",
     "@blueprintjs/select": "^3.1.0",
+    "iohook": "^0.2.0",
+    "keycode": "^2.2.0",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-scripts": "1.1.4",
@@ -46,5 +48,21 @@
     "directories": {
       "buildResources": "public"
     }
+  },
+  "iohook": {
+    "targets": [
+      "node-59",
+      "node-64",
+      "electron-57"
+    ],
+    "platforms": [
+      "win32",
+      "darwin",
+      "linux"
+    ],
+    "arches": [
+      "x64",
+      "ia32"
+    ]
   }
 }

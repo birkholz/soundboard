@@ -23,3 +23,4 @@ yarn-error.log*
 # electron
 dist
 !.vscode
+iohook-crash.log

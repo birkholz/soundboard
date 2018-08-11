@@ -1,15 +1,21 @@
 import { Button } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+import { IpcRenderer } from "electron";
+import { names as keycodeNames } from "keycode";
 import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
 
+const electron = window.require("electron");
+
+const ESCAPE_KEY = 27;
+
 interface Track {
   file: File;
   // TODO: Edward *will* destroy this
-  key: string | null;
+  keycode: number | null;
 }
 
 interface AudioElement extends HTMLAudioElement {
@@ -35,6 +41,16 @@ export enum OutputNumber {
   Two = 1
 }
 
+export interface IOHookKeydownEvent {
+  keycode: number;
+  rawcode: number;
+  type: "keydown";
+  altKey: boolean;
+  shiftKey: boolean;
+  ctrlKey: boolean;
+  metaKey: boolean;
+}
+
 class App extends Component<{}, AppState> {
   listener: EventListenerOrEventListenerObject;
   playingTracks: AudioElement[];
@@ -52,7 +68,6 @@ class App extends Component<{}, AppState> {
     };
   }
 
-
   updateDevices = async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
     return devices.filter(device => device.kind === "audiooutput");
@@ -60,53 +75,51 @@ class App extends Component<{}, AppState> {
 
   componentWillMount() {
     // Set initial outputs
-    this.updateDevices().then((devices) => {
+    this.updateDevices().then(devices => {
       const [device1, device2] = devices;
       const cableInputDevice = devices.find(({ label }) => label.includes("CABLE Input")) || device2;
       const outputs: Outputs = [device1, cableInputDevice];
-      this.setState({devices, outputs});
+      this.setState({ devices, outputs });
     });
   }
 
   componentDidMount() {
     // Set global keybinding listener
-    document.addEventListener("keydown", event => {
+    electron.ipcRenderer.on("keydown", (event: IpcRenderer, message: IOHookKeydownEvent) => {
       this.state.tracks.forEach((track: Track) => {
-        if (track.key === event.key && !this.state.trackChanging) {
+        if (track.keycode === message.rawcode && !this.state.trackChanging) {
           this.playSound(track.file);
         }
       });
     });
     // Set listener to update device list if the devices available change
     navigator.mediaDevices.ondevicechange = () => {
-      this.updateDevices().then((devices) => this.setState({devices}));
-    }
+      this.updateDevices().then(devices => this.setState({ devices }));
+    };
   }
 
   changeFile = (file: File) => {
     const tracks = this.state.tracks;
-    tracks.push({ file, key: null });
+    tracks.push({ file, keycode: null });
     this.setState({ tracks });
   };
 
   playSound = async (track: File) => {
-    const [ output1, output2 ] = this.state.outputs;
-    const audio1 = new Audio();
-    const audio2 = new Audio();
+    const [output1, output2] = this.state.outputs;
+    const objUrl = URL.createObjectURL(track);
+    const audio1 = new Audio(objUrl);
+    const audio2 = new Audio(objUrl);
     await audio1.setSinkId(output1.deviceId);
     await audio2.setSinkId(output2.deviceId);
-    const objUrl = URL.createObjectURL(track);
-    audio1.src = objUrl;
-    audio2.src = objUrl;
     audio1.play();
     audio2.play();
     this.playingTracks.push(audio1);
     this.playingTracks.push(audio2);
-  }
+  };
 
   stopAllSounds = () => {
-    this.playingTracks.forEach((a) => {
-      a.pause();
+    this.playingTracks.forEach(audioElement => {
+      audioElement.pause();
     });
     this.playingTracks = [];
   };
@@ -122,11 +135,11 @@ class App extends Component<{}, AppState> {
 
   finishKey = (event: KeyboardEvent) => {
     const { tracks, trackChanging } = this.state;
-    const newKey = event.keyCode === 27 ? null : event.key;
+    const newKey = event.keyCode === ESCAPE_KEY ? null : event.keyCode;
     if (trackChanging) {
       tracks.forEach(track => {
         if (track === trackChanging) {
-          track.key = newKey;
+          track.keycode = newKey;
         }
       });
       this.setState({ tracks, trackChanging: null });
@@ -143,16 +156,16 @@ class App extends Component<{}, AppState> {
   getKeyText = (track: Track) => {
     if (track === this.state.trackChanging) {
       return "Press any key";
-    } else if (!track.key) {
+    } else if (!track.keycode) {
       return "";
     } else {
-      return track.key;
+      return keycodeNames[track.keycode];
     }
   };
 
   renderTrack = (track: Track, index: number) => {
     const { trackChanging } = this.state;
-    const canHaveKeyAssigned = !track.key && !trackChanging;
+    const canHaveKeyAssigned = !track.keycode && !trackChanging;
     const icon = canHaveKeyAssigned ? "insert" : undefined;
 
     const onPlayClick = () => this.playSound(track.file);
