@@ -7,10 +7,9 @@ import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
 import { TrackList } from "./components/TrackList";
-import { keycodeNames } from './keycodes';
+import { keycodeNames } from "./keycodes";
 
 const electron = window.require("electron");
-
 
 export interface Track {
   file: File;
@@ -96,8 +95,7 @@ class App extends Component<{}, AppState> {
       const { trackChanging, listeningForKey, stopKey, tracks } = this.state;
       if (listeningForKey || trackChanging) {
         trackChanging ? this.setTrackKey(message) : this.setStopKey(message);
-      }
-      else {
+      } else {
         if (stopKey === message[codeType]) {
           this.stopAllSounds();
           return;
@@ -165,16 +163,16 @@ class App extends Component<{}, AppState> {
 
   changeStopKey = () => {
     this.setState({ listeningForKey: true });
-  }
+  };
 
   setStopKey = (event: IOHookKeydownEvent) => {
     const { listeningForKey } = this.state;
     if (listeningForKey) {
       const eventCode = event[codeType];
       const newKey = eventCode === ESCAPE_KEY ? null : eventCode;
-      this.setState({listeningForKey: false, stopKey: newKey});
+      this.setState({ listeningForKey: false, stopKey: newKey });
     }
-  }
+  };
 
   deleteTrack = (track: Track) => {
     const tracks = this.state.tracks.filter(t => t !== track);
@@ -190,15 +188,15 @@ class App extends Component<{}, AppState> {
 
   renderStop = () => {
     const { stopKey, listeningForKey } = this.state;
-    const stopIcon = !this.state.stopKey ? 'insert': undefined;
-    const stopText = keycodeNames[stopKey || -1] || '';
+    const stopIcon = !this.state.stopKey ? "insert" : undefined;
+    const stopText = keycodeNames[stopKey || -1] || "";
     return (
       <div>
         <Button onClick={this.stopAllSounds} text="Stop" />
-        <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={ listeningForKey } />
+        <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={listeningForKey} />
       </div>
-    )
-  }
+    );
+  };
 
   render() {
     return (
@@ -215,7 +213,7 @@ class App extends Component<{}, AppState> {
           playSound={this.playSound}
           changeTrackKey={this.changeTrackKey}
           deleteTrack={this.deleteTrack}
-          keycodeNames={keycodeNames} />
+        />
       </div>
     );
   }

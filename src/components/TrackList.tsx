@@ -2,27 +2,26 @@ import { Button } from "@blueprintjs/core";
 import * as React from "react";
 import { ReactNode, SFC } from "react";
 import { Track } from "../App";
-
+import { keycodeNames } from "../keycodes";
 
 export interface TrackListProps {
-    tracks: Track[],
-    trackChanging: Track | null,
-    listeningForKey: boolean,
-    playSound: (file: File) => void,
-    changeTrackKey: (track: Track) => void,
-    deleteTrack: (track: Track) => void,
-    keycodeNames: InverseCodesMap
+  tracks: Track[];
+  trackChanging: Track | null;
+  listeningForKey: boolean;
+  playSound: (file: File) => void;
+  changeTrackKey: (track: Track) => void;
+  deleteTrack: (track: Track) => void;
 }
 
-const getKeyText = (track: Track, trackChanging: Track | null, keycodeNames: InverseCodesMap) => {
-    if (track === trackChanging) {
-      return "Press any key";
-    } else if (!track.keycode) {
-      return "";
-    } else {
-      return keycodeNames[track.keycode];
-    }
-  };
+const getKeyText = (track: Track, trackChanging: Track | null) => {
+  if (track === trackChanging) {
+    return "Press any key";
+  } else if (!track.keycode) {
+    return "";
+  } else {
+    return keycodeNames[track.keycode];
+  }
+};
 
 export const TrackList: SFC<TrackListProps> = ({
   tracks,
@@ -30,11 +29,10 @@ export const TrackList: SFC<TrackListProps> = ({
   listeningForKey,
   playSound,
   changeTrackKey,
-  deleteTrack,
-  keycodeNames
+  deleteTrack
 }: TrackListProps) => {
   if (!tracks.length) {
-    return (<div/>);
+    return <div />;
   }
   const trackRows: ReactNode[] = [];
   tracks.forEach((track, index) => {
@@ -54,7 +52,8 @@ export const TrackList: SFC<TrackListProps> = ({
             onClick={onChangeTrackKeyClick}
             disabled={listeningForKey}
             icon={icon}
-            text={getKeyText(track, trackChanging, keycodeNames)} />
+            text={getKeyText(track, trackChanging)}
+          />
         </td>
         <td>
           <Button onClick={onDeleteTrackClick} disabled={listeningForKey} icon="trash" />
