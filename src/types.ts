@@ -4,7 +4,7 @@ export { ElectronStore };
 
 export interface BaseTrack {
   id: string;
-  trackName: string;
+  name: string;
   keycode: number;
 }
 

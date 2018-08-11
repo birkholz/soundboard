@@ -130,7 +130,7 @@ class App extends Component<{}, AppState> {
             .toString(36)
             .substr(2, 9)}`,
           file: soundBinary,
-          trackName: file.name,
+          name: file.name,
           keycode: UNSET_KEYCODE
         }
       ];

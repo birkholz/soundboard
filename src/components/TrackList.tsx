@@ -45,7 +45,7 @@ export const TrackList: SFC<TrackListProps> = ({
     return (
       <tr key={index}>
         <td>
-          <Button onClick={onPlayClick} text={track.trackName} />
+          <Button onClick={onPlayClick} text={track.name} />
         </td>
         <td>
           <Button
