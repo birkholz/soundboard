@@ -54,6 +54,7 @@ export interface IOHookKeydownEvent {
   metaKey: boolean;
 }
 
+const codeType = process.platform === "darwin" ? "keycode" : "rawcode";
 class App extends Component<{}, AppState> {
   listener: EventListenerOrEventListenerObject;
   playingTracks: AudioElement[];
@@ -93,7 +94,7 @@ class App extends Component<{}, AppState> {
         this.finishKey(message);
       }
       this.state.tracks.forEach((track: Track) => {
-        if (track.keycode === message.rawcode && !this.state.trackChanging) {
+        if (track.keycode === message[codeType] && !this.state.trackChanging) {
           this.playSound(track.file);
         }
       });
@@ -140,7 +141,8 @@ class App extends Component<{}, AppState> {
 
   finishKey = (event: IOHookKeydownEvent) => {
     const { tracks, trackChanging } = this.state;
-    const newKey = ESCAPE_KEY_KEYCODES[event.keycode] ? null : event.rawcode;
+    const eventCode = event[codeType];
+    const newKey = ESCAPE_KEY_KEYCODES[eventCode] ? null : eventCode;
     if (trackChanging) {
       tracks.forEach(track => {
         if (track === trackChanging) {
