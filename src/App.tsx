@@ -9,11 +9,11 @@ import FilePicker from "./components/FilePicker";
 import { getSoundFileAsDataURI } from "./helpers";
 import { keycodeNames } from "./keycodes";
 import {
-  addBaseTrackToStateStore,
-  addOutputsToStore,
-  addTrackToStores,
   getInitialAppState,
-  removeTrackFromStores
+  removeTrackFromStores,
+  updateBaseTrackInStateStore,
+  updateOutputsInStore,
+  updateTracksInStores
 } from "./store";
 import { AudioElement, IOHookKeydownEvent, OutputNumber, Outputs, Track } from "./types";
 
@@ -83,7 +83,7 @@ class App extends Component<{}, AppState> {
         devices,
         outputs: updatedOutputs
       });
-      addOutputsToStore(updatedOutputs);
+      updateOutputsInStore(updatedOutputs);
     });
   };
 
@@ -125,7 +125,7 @@ class App extends Component<{}, AppState> {
         }
       ];
       this.setState({ tracks });
-      addTrackToStores(tracks);
+      updateTracksInStores(tracks);
     });
   };
 
@@ -167,7 +167,7 @@ class App extends Component<{}, AppState> {
         }
       });
       this.setState({ tracks, trackChanging: null });
-      addBaseTrackToStateStore(tracks);
+      updateBaseTrackInStateStore(tracks);
     }
   };
 
@@ -220,7 +220,7 @@ class App extends Component<{}, AppState> {
     const outputs = this.state.outputs;
     outputs[outputNumber] = device;
     this.setState({ outputs });
-    addOutputsToStore(outputs);
+    updateOutputsInStore(outputs);
   };
 
   renderTable = (tracks: Track[]) => {

@@ -20,13 +20,12 @@ export const trackStore: ElectronStore<TrackStore> = new Store({
 export const stateStore: ElectronStore<StateStore> = new Store({
   name: "state"
 });
-console.log(trackStore, stateStore);
 
-export const addOutputsToStore = (outputs: Outputs) => {
+export const updateOutputsInStore = (outputs: Outputs) => {
   stateStore.set("outputs", outputs);
 };
 
-const addTrackToTrackStore = (tracks: Track[]) => {
+const updateTracksInTrackStore = (tracks: Track[]) => {
   // const storedTrackIds = Object.keys(trackStore.store);
   // const currentTrackIds = tracks.map(prop("id"));
   // const trackIdsToAdd = [...new Set([...storedTrackIds, ...currentTrackIds])];
@@ -43,13 +42,13 @@ const addTrackToTrackStore = (tracks: Track[]) => {
   trackStore.set(tracksToAdd);
 };
 
-export const addBaseTrackToStateStore = (tracks: Track[]) => {
+export const updateBaseTrackInStateStore = (tracks: Track[]) => {
   stateStore.set("tracks", map(dissoc("file"), tracks));
 };
 
-export const addTrackToStores = (tracks: Track[]) => {
-  addTrackToTrackStore(tracks);
-  addBaseTrackToStateStore(tracks);
+export const updateTracksInStores = (tracks: Track[]) => {
+  updateTracksInTrackStore(tracks);
+  updateBaseTrackInStateStore(tracks);
 };
 
 export const removeTrackFromStores = (tracks: Track[], tracktoDelete: Track) => {
@@ -81,6 +80,5 @@ export const getInitialAppState = (defaultState: AppState): AppState => {
       };
     }
   }
-  console.log(updatedState);
   return updatedState;
 };
