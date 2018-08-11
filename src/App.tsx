@@ -6,6 +6,15 @@ import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
 
+const electron = window.require('electron').remote;
+const { globalShortcut } = electron;
+
+declare global {
+  interface Window {
+    require: any;
+  }
+}
+
 interface Track {
   file: File;
   // TODO: Edward *will* destroy this
@@ -25,6 +34,7 @@ export type Outputs = [MediaDeviceInfo, MediaDeviceInfo];
 interface AppState {
   tracks: Track[];
   trackChanging: Track | null;
+  newKeybinding: string;
   devices: MediaDeviceInfo[];
   outputs: Outputs;
   sources: AudioBufferSourceNode[];
@@ -34,6 +44,8 @@ export enum OutputNumber {
   One = 0,
   Two = 1
 }
+
+type MaybeKey = string | null;
 
 class App extends Component<{}, AppState> {
   listener: EventListenerOrEventListenerObject;
@@ -46,6 +58,7 @@ class App extends Component<{}, AppState> {
     this.state = {
       tracks: [],
       trackChanging: null,
+      newKeybinding: '',
       devices: [],
       outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
       sources: []
@@ -69,14 +82,6 @@ class App extends Component<{}, AppState> {
   }
 
   componentDidMount() {
-    // Set global keybinding listener
-    document.addEventListener("keydown", event => {
-      this.state.tracks.forEach((track: Track) => {
-        if (track.key === event.key && !this.state.trackChanging) {
-          this.playSound(track.file);
-        }
-      });
-    });
     // Set listener to update device list if the devices available change
     navigator.mediaDevices.ondevicechange = () => {
       this.updateDevices().then((devices) => this.setState({devices}));
@@ -117,24 +122,76 @@ class App extends Component<{}, AppState> {
 
   changeKey = (track: Track) => {
     this.setState({ trackChanging: track });
+    if (track.key) {
+      globalShortcut.unregister(track.key);
+    }
     document.addEventListener("keydown", this.finishKey);
   };
 
-  finishKey = (event: KeyboardEvent) => {
-    const { tracks, trackChanging } = this.state;
-    const newKey = event.keyCode === 27 ? null : event.key;
-    if (trackChanging) {
-      tracks.forEach(track => {
-        if (track === trackChanging) {
-          track.key = newKey;
-        }
-      });
-      this.setState({ tracks, trackChanging: null });
+  keyToAccelerator = (event: KeyboardEvent) => {
+    const key = event.key;
+    const code = event.keyCode;
+
+    if ((code >= 65 && code <= 90) || (97 <= code && code <= 122)) {
+      // Is latin character
+      return key.toUpperCase();
     }
+    else if (code >= 48 && code <= 57) {
+      // Is number
+      return key;
+    }
+    return null;
+  };
+
+  updateTrackKey = (key: MaybeKey) => {
+    const { tracks, trackChanging } = this.state;
+    if (trackChanging) {
+      const trackIndex = tracks.indexOf(trackChanging);
+      if (key) {
+        globalShortcut.register(key, () => {
+          this.playSound(trackChanging.file);
+        });
+      }
+      else if (trackChanging.key && globalShortcut.isRegistered(trackChanging.key)) {
+        globalShortcut.unregister(trackChanging.key);
+      }
+      trackChanging.key = key;
+      tracks[trackIndex] = trackChanging;
+    }
+    this.setState({ tracks, trackChanging: null, newKeybinding: '' });
     document.removeEventListener("keydown", this.finishKey);
+  }
+
+  finishKey = (event: KeyboardEvent) => {
+    let soFar = this.state.newKeybinding;
+    if (['Shift', 'Ctrl', 'Cmd'].includes(event.key)) {
+      if (soFar) {
+        soFar += '+';
+      }
+      soFar += event.key;
+      this.setState({newKeybinding: soFar});
+    }
+    else {
+      let newKey = this.state.newKeybinding;
+      if (newKey) {
+        newKey += '+';
+      }
+      const accelerator = this.keyToAccelerator(event);
+      if (accelerator){
+        newKey += accelerator;
+        this.updateTrackKey(newKey);
+      }
+      else {
+        this.updateTrackKey(null);
+      }
+
+    }
   };
 
   deleteTrack = (track: Track) => {
+    if (track.key && globalShortcut.isRegistered(track.key)) {
+      globalShortcut.unregister(track.key);
+    }
     const tracks = this.state.tracks.filter(t => t !== track);
     this.stopAllSounds();
     this.setState({ tracks });
