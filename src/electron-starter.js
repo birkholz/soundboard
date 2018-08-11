@@ -23,7 +23,6 @@ function createWindow() {
 
   iohook.start();
   iohook.on("keydown", event => {
-    console.log(event);
     mainWindow.webContents.send("keydown", event);
   });
 }
