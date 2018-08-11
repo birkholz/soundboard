@@ -2,37 +2,32 @@ import { Button } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
-// @ts-ignore
-import ElectronStore = require("electron-store");
-import * as React from "react";
 import { Component } from "react";
+import * as React from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
 import { getSoundFileAsDataURI } from "./helpers";
 import { keycodeNames } from "./keycodes";
+import {
+  addBaseTrackToStateStore,
+  addOutputsToStore,
+  addTrackToStores,
+  getInitialAppState,
+  removeTrackFromStores
+} from "./store";
+import { AudioElement, IOHookKeydownEvent, OutputNumber, Outputs, Track } from "./types";
 
 const electron = window.require("electron");
-const Store = window.require("electron-store");
-const store: ElectronStore<AppState> = new Store();
-
-interface Track {
-  file: string;
-  trackName: string;
-  // TODO: Edward *will* destroy this
-  keycode: number | null;
-}
-
-interface AudioElement extends HTMLAudioElement {
-  setSinkId: (deviceId: string) => Promise<undefined>;
-}
 
 declare var Audio: {
   new (src?: string): AudioElement;
 };
 
-export type Outputs = [MediaDeviceInfo, MediaDeviceInfo];
+const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
+const ESCAPE_KEY = window.process.platform === "darwin" ? 1 : 27;
+const UNSET_KEYCODE = -1;
 
-interface AppState {
+export interface AppState {
   appInitialized: boolean;
   tracks: Track[];
   trackChanging: Track | null;
@@ -42,55 +37,21 @@ interface AppState {
   outputs: Outputs;
   sources: AudioBufferSourceNode[];
 }
-
-export enum OutputNumber {
-  One = 0,
-  Two = 1
-}
-
-export interface IOHookKeydownEvent {
-  keycode: number;
-  rawcode: number;
-  type: "keydown";
-  altKey: boolean;
-  shiftKey: boolean;
-  ctrlKey: boolean;
-  metaKey: boolean;
-}
-
-const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
-const ESCAPE_KEY = window.process.platform === "darwin" ? 1 : 27;
-
 class App extends Component<{}, AppState> {
-  static getDerivedStateFromProps(props: {}, state: AppState) {
-    if (state.appInitialized) {
-      store.set(state);
-    }
-    return state;
-  }
-
-  listener: EventListenerOrEventListenerObject;
   playingTracks: AudioElement[];
 
   constructor(props: {}) {
     super(props);
     this.playingTracks = [];
 
-    if (store.size === 0) {
-      this.state = {
-        appInitialized: false,
-        tracks: [],
-        trackChanging: null,
-        devices: {},
-        outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
-        sources: []
-      };
-    } else {
-      this.state = {
-        ...store.store,
-        appInitialized: false
-      };
-    }
+    this.state = getInitialAppState({
+      appInitialized: false,
+      tracks: [],
+      trackChanging: null,
+      devices: {},
+      outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
+      sources: []
+    });
   }
 
   updateDevices = async (): Promise<{ [deviceId: string]: MediaDeviceInfo }> => {
@@ -104,11 +65,9 @@ class App extends Component<{}, AppState> {
     }, {});
   };
 
-  componentDidMount() {
-    // Set initial outputs
+  initializeDevicesAndOutputs = async () => {
     this.updateDevices().then(devices => {
-      const deviceList = Object.values(devices);
-      const [defaultDevice, backupDevice] = Object.values(deviceList);
+      const [defaultDevice, backupDevice] = Object.values(devices);
       const { outputs } = this.state;
       let [output1, output2] = outputs;
       if (!devices[output1.deviceId]) {
@@ -116,13 +75,21 @@ class App extends Component<{}, AppState> {
       }
       if (!devices[output2.deviceId]) {
         // Attempt to default to VB CABLE Input
-        output2 = Object.values(deviceList).find(({ label }) => label.includes("CABLE Input")) || backupDevice;
+        output2 = Object.values(devices).find(({ label }) => label.includes("CABLE Input")) || backupDevice;
       }
+
+      const updatedOutputs: Outputs = [output1, output2];
       this.setState({
         devices,
-        outputs: [output1, output2]
+        outputs: updatedOutputs
       });
+      addOutputsToStore(updatedOutputs);
     });
+  };
+
+  componentDidMount() {
+    // Set initial outputs
+    this.initializeDevicesAndOutputs();
 
     // Set global keybinding listener
     electron.ipcRenderer.on("keydown", (event: IpcRenderer, message: IOHookKeydownEvent) => {
@@ -144,18 +111,21 @@ class App extends Component<{}, AppState> {
     this.setState({ appInitialized: true });
   }
 
-  changeFile = (file: File) => {
+  onTrackReceived = (file: File) => {
     getSoundFileAsDataURI(file).then((soundBinary: string) => {
-      this.setState({
-        tracks: [
-          ...this.state.tracks,
-          {
-            file: soundBinary,
-            trackName: file.name,
-            keycode: null
-          }
-        ]
-      });
+      const tracks = [
+        ...this.state.tracks,
+        {
+          id: `_${Math.random()
+            .toString(36)
+            .substr(2, 9)}`,
+          file: soundBinary,
+          trackName: file.name,
+          keycode: UNSET_KEYCODE
+        }
+      ];
+      this.setState({ tracks });
+      addTrackToStores(tracks);
     });
   };
 
@@ -189,7 +159,7 @@ class App extends Component<{}, AppState> {
   finishKey = (event: IOHookKeydownEvent) => {
     const { tracks, trackChanging } = this.state;
     const eventCode = event[codeType];
-    const newKey = eventCode === ESCAPE_KEY ? null : eventCode;
+    const newKey = eventCode === ESCAPE_KEY ? UNSET_KEYCODE : eventCode;
     if (trackChanging) {
       tracks.forEach(track => {
         if (track === trackChanging) {
@@ -197,6 +167,7 @@ class App extends Component<{}, AppState> {
         }
       });
       this.setState({ tracks, trackChanging: null });
+      addBaseTrackToStateStore(tracks);
     }
   };
 
@@ -204,6 +175,7 @@ class App extends Component<{}, AppState> {
     const tracks = this.state.tracks.filter(t => t !== track);
     this.stopAllSounds();
     this.setState({ tracks });
+    removeTrackFromStores(tracks, track);
   };
 
   getKeyText = (track: Track) => {
@@ -218,7 +190,7 @@ class App extends Component<{}, AppState> {
 
   renderTrack = (track: Track, index: number) => {
     const { trackChanging } = this.state;
-    const canHaveKeyAssigned = !track.keycode && !trackChanging;
+    const canHaveKeyAssigned = track.keycode === -1 && !trackChanging;
     const icon = canHaveKeyAssigned ? "insert" : undefined;
 
     const onPlayClick = () => this.playSound(track.file);
@@ -248,6 +220,7 @@ class App extends Component<{}, AppState> {
     const outputs = this.state.outputs;
     outputs[outputNumber] = device;
     this.setState({ outputs });
+    addOutputsToStore(outputs);
   };
 
   renderTable = (tracks: Track[]) => {
@@ -275,7 +248,7 @@ class App extends Component<{}, AppState> {
           outputs={this.state.outputs}
           onItemSelect={this.onDeviceSelect}
         />
-        <FilePicker extensions={["wav", "mp3", "ogg"]} onChange={this.changeFile} onError={this.logFileError}>
+        <FilePicker extensions={["wav", "mp3", "ogg"]} onChange={this.onTrackReceived} onError={this.logFileError}>
           <Button text="Add Sound" />
         </FilePicker>
         <Button onClick={this.stopAllSounds} text="Stop" />
