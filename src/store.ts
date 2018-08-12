@@ -12,12 +12,13 @@ interface TrackStore {
 interface StateStore {
   outputs: Outputs;
   tracks: BaseTrack[];
+  stopKey: number;
 }
 
-export const trackStore: ElectronStore<TrackStore> = new Store({
+const trackStore: ElectronStore<TrackStore> = new Store({
   name: "tracks"
 });
-export const stateStore: ElectronStore<StateStore> = new Store({
+const stateStore: ElectronStore<StateStore> = new Store({
   name: "state"
 });
 
@@ -25,12 +26,11 @@ export const updateOutputsInStore = (outputs: Outputs) => {
   stateStore.set("outputs", outputs);
 };
 
+export const updateStopKeyInStateStore = (stopKey: number) => {
+  stateStore.set("stopKey", stopKey);
+};
+
 const updateTracksInTrackStore = (tracks: Track[]) => {
-  // const storedTrackIds = Object.keys(trackStore.store);
-  // const currentTrackIds = tracks.map(prop("id"));
-  // const trackIdsToAdd = [...new Set([...storedTrackIds, ...currentTrackIds])];
-  // const tracksToAdd = ;
-  // trackStore.set(tracksToAdd, track.file);
   const tracksToAdd = tracks.reduce<TrackStore>((trackMap, { id, file }) => {
     if (!trackStore.has(id)) {
       trackMap[id] = file;
@@ -38,7 +38,6 @@ const updateTracksInTrackStore = (tracks: Track[]) => {
 
     return trackMap;
   }, {});
-  console.log(tracksToAdd);
   trackStore.set(tracksToAdd);
 };
 
@@ -68,9 +67,11 @@ export const getInitialAppState = (defaultState: AppState): AppState => {
     ...defaultState
   };
   if (isStoreNotEmpty(stateStore)) {
+    const { outputs, stopKey } = defaultState;
     updatedState = {
-      ...defaultState,
-      outputs: stateStore.get("outputs") || []
+      ...updatedState,
+      outputs: stateStore.get("outputs", outputs),
+      stopKey: stateStore.get("stopKey", stopKey)
     };
 
     if (isStoreNotEmpty(trackStore)) {

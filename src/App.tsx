@@ -15,6 +15,7 @@ import {
   removeTrackFromStores,
   updateBaseTrackInStateStore,
   updateOutputsInStore,
+  updateStopKeyInStateStore,
   updateTracksInStores
 } from "./store";
 import { AudioElement, IOHookKeydownEvent, OutputNumber, Outputs, Track } from "./types";
@@ -34,7 +35,7 @@ export interface AppState {
   listeningForKey: boolean;
   outputs: Outputs;
   sources: AudioBufferSourceNode[];
-  stopKey: number | null;
+  stopKey: number;
 }
 
 const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
@@ -56,7 +57,7 @@ class App extends Component<{}, AppState> {
       listeningForKey: false,
       outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
       sources: [],
-      stopKey: null
+      stopKey: UNSET_KEYCODE
     });
   }
 
@@ -190,8 +191,9 @@ class App extends Component<{}, AppState> {
     const { listeningForKey } = this.state;
     if (listeningForKey) {
       const eventCode = event[codeType];
-      const newKey = eventCode === ESCAPE_KEY ? null : eventCode;
+      const newKey = eventCode === ESCAPE_KEY ? UNSET_KEYCODE : eventCode;
       this.setState({ listeningForKey: false, stopKey: newKey });
+      updateStopKeyInStateStore(newKey);
     }
   };
 
@@ -211,8 +213,8 @@ class App extends Component<{}, AppState> {
 
   renderStop = () => {
     const { stopKey, listeningForKey } = this.state;
-    const stopIcon = !this.state.stopKey ? "insert" : undefined;
-    const stopText = keycodeNames[stopKey || -1] || "";
+    const stopIcon = stopKey === UNSET_KEYCODE ? "insert" : undefined;
+    const { [stopKey]: stopText = "" } = keycodeNames;
     return (
       <div>
         <Button onClick={this.stopAllSounds} text="Stop" />
