@@ -285,12 +285,11 @@ class App extends Component<{}, AppState> {
 
   render() {
     const { stopKey, listeningForKey } = this.state;
-    const stopIcon = stopKey === UNSET_KEYCODE ? "insert" : undefined;
-    const { [stopKey]: stopText = "" } = keycodeNames;
+    const { [stopKey]: stopText = "(unset)" } = keycodeNames;
     const setInput = (ele: HTMLInputElement) => (this.filterInput = ele);
 
     return (
-      <div className="App bp3-dark">
+      <div className="App">
         <div className="drag-target" style={{ display: this.state.dragging > 0 ? "block" : "none" }}>
           <div>Drop File(s) Here</div>
         </div>
@@ -315,11 +314,12 @@ class App extends Component<{}, AppState> {
           />
           <ControlGroup fill={true}>
             <FileInput onChange={this.fileHandler}>
-              <Button className="upload-button" text="Add Sound" />
+              <Button className="upload-button" text="Add Sound" icon="plus" />
             </FileInput>
-            <Button onClick={this.stopAllSounds} text="Stop" />
-            <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={listeningForKey} />
+            <Button onClick={this.stopAllSounds} text="Stop" icon="stop" />
+            <Button onClick={this.changeStopKey} text={stopText} disabled={listeningForKey} />
           </ControlGroup>
+          <div className="management-bar-divider" />
           <ControlGroup className="devices" fill={true}>
             <Devices
               devices={Object.values(this.state.devices)}

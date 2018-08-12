@@ -27,7 +27,7 @@ class FileInput extends React.Component<FileInputProps> {
 
   render() {
     return (
-      <div style={this.props.style}>
+      <div className="add-button" style={this.props.style}>
         <input
           type="file"
           style={{ display: "none" }}

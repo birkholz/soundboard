@@ -54,7 +54,7 @@ class TrackRow extends React.Component<TrackRowProps, { isContextMenuOpen: boole
     const onDeleteTrackClick = () => deleteTrack(track);
     ContextMenu.show(
       <Menu>
-        <MenuItem onClick={onChangeTrackKeyClick} text="Change Key" icon="edit" />
+        <MenuItem onClick={onChangeTrackKeyClick} text="Set Keybind" icon="edit" />
         <MenuItem onClick={onDeleteTrackClick} text="Delete" icon="trash" />
       </Menu>,
       { left: e.clientX, top: e.clientY },

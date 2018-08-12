@@ -51,6 +51,11 @@ span.bp3-popover-target, span.bp3-popover-target .bp3-button {
 .management-bar > * {
   flex: 1 1 auto;
 }
+.management-bar-divider {
+  width: 100%;
+  border-top: 1px solid #4e5c68;
+  margin: 1px 0;
+}
 .upload-button {
   display: block;
   width: 100%;
@@ -76,4 +81,16 @@ span.bp3-popover-target, span.bp3-popover-target .bp3-button {
 }
 :focus {
   outline: none;
+}
+.volume-button {
+  width: 3em;
+  padding: 0;
+}
+.bp3-dark .bp3-menu {
+  background: #30404d;
+  color: #f5f8fa;
+}
+.add-button {
+  display: flex;
+  width: 100%;
 }

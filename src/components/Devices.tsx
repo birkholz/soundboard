@@ -40,6 +40,7 @@ const onSelect = (
 export const Devices: SFC<DevicesProps> = ({ devices, outputs, onItemSelect }: DevicesProps) => {
   return (
     <ControlGroup className="devices" fill={true}>
+      <Button className="volume-button bp3-fixed" disabled={true} icon="volume-up" />
       <DeviceSelect
         filterable={false}
         items={devices}
