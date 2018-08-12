@@ -1,4 +1,4 @@
-import { Button, ControlGroup } from "@blueprintjs/core";
+import { Button, ControlGroup, InputGroup } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
@@ -305,7 +305,7 @@ class App extends Component<{}, AppState> {
           deleteTrack={this.deleteTrack}
         />
         <div className="management-bar-wrapper">
-          <input className="bp3-input track-filter" onInput={this.filterTracks} placeholder="Filter..." />
+          <InputGroup onChange={this.filterTracks} leftIcon="search" placeholder="Filter..." large={true} />
           <ControlGroup fill={true}>
             <FileInput onChange={this.fileHandler}>
               <Button className="upload-button" text="Add Sound" />

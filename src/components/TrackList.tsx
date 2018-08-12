@@ -1,4 +1,4 @@
-import { Button } from "@blueprintjs/core";
+import { Button, NonIdealState } from "@blueprintjs/core";
 import * as React from "react";
 import { ReactNode, SFC } from "react";
 import { keycodeNames } from "../keycodes";
@@ -32,16 +32,17 @@ export const TrackList: SFC<TrackListProps> = ({
   const filtered = trackFilter && trackFilter.value !== "";
   if (filtered && !tracks.length) {
     return (
-      <div className="empty-text">
-        <p>No matching sounds.</p>
-      </div>
+      <NonIdealState icon="search" title="No results." />
     );
   } else if (!tracks.length) {
+    const desc = (
+      <>
+        <p>Add sounds by clicking "Add Sound" below, </p>
+        <p>or dragging files into the window.</p>
+      </>
+    )
     return (
-      <div className="empty-text">
-        <p>Add sounds by clicking "Add Sound" below, or dragging files into the window.</p>
-        <p>Supported file types: .mp3, .wav, .ogg</p>
-      </div>
+      <NonIdealState icon="add" title="No Sounds" description={desc} />
     );
   }
 
