@@ -2,13 +2,13 @@ import { Button } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
-import { Component } from "react";
+import { last } from "ramda";
 import * as React from "react";
+import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
-
 import { TrackList } from "./components/TrackList";
-import { getSoundFileAsDataURI } from "./helpers";
+import { getTrackDataFromFile } from "./helpers";
 import { keycodeNames } from "./keycodes";
 import {
   getInitialAppState,
@@ -18,7 +18,17 @@ import {
   updateStopKeyInStateStore,
   updateTracksInStores
 } from "./store";
-import { AudioElement, IOHookKeydownEvent, OutputNumber, Outputs, Track } from "./types";
+import {
+  AudioElement,
+  ESCAPE_KEY,
+  IOHookKeydownEvent,
+  OutputNumber,
+  Outputs,
+  Track,
+  UNSET_KEYCODE,
+  VALID_EXTENSIONS
+} from "./types";
+
 const electron = window.require("electron");
 
 declare var Audio: {
@@ -36,11 +46,11 @@ export interface AppState {
   outputs: Outputs;
   sources: AudioBufferSourceNode[];
   stopKey: number;
+  dragging: number;
+  loadingFiles: boolean;
 }
 
 const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
-const ESCAPE_KEY = window.process.platform === "darwin" ? 1 : 27;
-const UNSET_KEYCODE = -1;
 
 class App extends Component<{}, AppState> {
   playingTracks: AudioElement[];
@@ -57,7 +67,9 @@ class App extends Component<{}, AppState> {
       listeningForKey: false,
       outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
       sources: [],
-      stopKey: UNSET_KEYCODE
+      stopKey: UNSET_KEYCODE,
+      dragging: 0,
+      loadingFiles: false
     });
   }
 
@@ -119,22 +131,67 @@ class App extends Component<{}, AppState> {
       this.updateDevices().then(devices => this.setState({ devices }));
     };
 
+    // Set up file drop events
+    // state.dragging is a number because enter/leave fires on children also
+    document.addEventListener(
+      "dragenter",
+      event => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.setState({ dragging: this.state.dragging + 1 });
+      },
+      false
+    );
+    document.addEventListener(
+      "dragleave",
+      event => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.setState({ dragging: this.state.dragging - 1 });
+      },
+      false
+    );
+    document.addEventListener("dragover", event => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    document.addEventListener(
+      "drop",
+      event => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.setState({ dragging: 0, loadingFiles: true });
+        this.fileDropHandler(event.dataTransfer.files);
+      },
+      false
+    );
+
     this.setState({ appInitialized: true });
   }
 
+  processFiles = async (files: File[]) => {
+    for (const file of files) {
+      const track = await getTrackDataFromFile(file);
+      const tracks = [...this.state.tracks, track];
+      this.setState({ tracks });
+      updateTracksInStores(tracks);
+    }
+  };
+
+  fileDropHandler = (fileList: FileList) => {
+    const files = Array.from(fileList);
+    const validAudioFiles = files.filter(file => {
+      const extension = last(file.name.split(".")) || "";
+      return VALID_EXTENSIONS.includes(extension);
+    });
+    this.processFiles(validAudioFiles).then(() => {
+      this.setState({ loadingFiles: false });
+    });
+  };
+
   onTrackReceived = (file: File) => {
-    getSoundFileAsDataURI(file).then((soundBinary: string) => {
-      const tracks = [
-        ...this.state.tracks,
-        {
-          id: `_${Math.random()
-            .toString(36)
-            .substr(2, 9)}`,
-          file: soundBinary,
-          name: file.name,
-          keycode: UNSET_KEYCODE
-        }
-      ];
+    getTrackDataFromFile(file).then((track: Track) => {
+      const tracks = [...this.state.tracks, track];
       this.setState({ tracks });
       updateTracksInStores(tracks);
     });
@@ -226,12 +283,18 @@ class App extends Component<{}, AppState> {
   render() {
     return (
       <div className="App">
+        <div className="drag-target" style={{ display: this.state.dragging > 0 ? "block" : "none" }}>
+          <div>Drop File(s) Here</div>
+        </div>
+        <div className="loading-files" style={{ display: this.state.loadingFiles ? "block" : "none" }}>
+          <div>Loading...</div>
+        </div>
         <Devices
           devices={Object.values(this.state.devices)}
           outputs={this.state.outputs}
           onItemSelect={this.onDeviceSelect}
         />
-        <FilePicker extensions={["wav", "mp3", "ogg"]} onChange={this.onTrackReceived} onError={this.logFileError}>
+        <FilePicker extensions={VALID_EXTENSIONS} onChange={this.onTrackReceived} onError={this.logFileError}>
           <Button text="Add Sound" />
         </FilePicker>
         {this.renderStop()}

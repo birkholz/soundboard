@@ -32,3 +32,7 @@ export interface IOHookKeydownEvent {
   ctrlKey: boolean;
   metaKey: boolean;
 }
+
+export const ESCAPE_KEY = window.process.platform === "darwin" ? 1 : 27;
+export const UNSET_KEYCODE = -1;
+export const VALID_EXTENSIONS = ["mp3", "wav", "ogg"];
