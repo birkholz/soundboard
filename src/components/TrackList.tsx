@@ -36,7 +36,7 @@ export const TrackList: SFC<TrackListProps> = ({
   }
 
   const trackRows: ReactNode[] = tracks.map((track, index) => {
-    const canHaveKeyAssigned = !track.keycode && !listeningForKey;
+    const canHaveKeyAssigned = track.keycode === -1 && !listeningForKey;
     const icon = canHaveKeyAssigned ? "insert" : undefined;
 
     const onPlayClick = () => playSound(track.file);
