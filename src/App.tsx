@@ -55,10 +55,12 @@ const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
 
 class App extends Component<{}, AppState> {
   playingTracks: AudioElement[];
+  filterInput: HTMLInputElement | null;
 
   constructor(props: {}) {
     super(props);
     this.playingTracks = [];
+    this.filterInput = null;
 
     this.state = getInitialAppState({
       appInitialized: false,
@@ -124,8 +126,9 @@ class App extends Component<{}, AppState> {
         }
         const track = tracks.find((t: Track) => t.keycode === message[codeType]);
         if (track) {
-          // @ts-ignore
-          document.querySelector(".track-filter").blur();
+          if (this.filterInput) {
+            this.filterInput.blur();
+          }
           this.playSound(track.file);
         }
       }
@@ -172,12 +175,8 @@ class App extends Component<{}, AppState> {
     );
 
     document.addEventListener("keyup", event => {
-      if (event.key === "s") {
-        const trackFilter = document.querySelector(".track-filter");
-        if (trackFilter) {
-          // @ts-ignore
-          trackFilter.focus();
-        }
+      if (event.key === "s" && this.filterInput) {
+        this.filterInput.focus();
       }
     });
 
@@ -288,6 +287,7 @@ class App extends Component<{}, AppState> {
     const { stopKey, listeningForKey } = this.state;
     const stopIcon = stopKey === UNSET_KEYCODE ? "insert" : undefined;
     const { [stopKey]: stopText = "" } = keycodeNames;
+    const setInput = (ele: HTMLInputElement) => (this.filterInput = ele);
 
     return (
       <div className="App bp3-dark">
@@ -300,12 +300,19 @@ class App extends Component<{}, AppState> {
         <TrackList
           tracks={this.state.filteredTracks}
           listeningForKey={this.state.listeningForKey}
+          filtered={this.filterInput && this.filterInput.value !== ""}
           playSound={this.playSound}
           changeTrackKey={this.changeTrackKey}
           deleteTrack={this.deleteTrack}
         />
         <div className="management-bar-wrapper">
-          <InputGroup onChange={this.filterTracks} leftIcon="search" placeholder="Filter..." large={true} />
+          <InputGroup
+            onChange={this.filterTracks}
+            leftIcon="search"
+            placeholder="Filter..."
+            large={true}
+            inputRef={setInput}
+          />
           <ControlGroup fill={true}>
             <FileInput onChange={this.fileHandler}>
               <Button className="upload-button" text="Add Sound" />

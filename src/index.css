@@ -59,3 +59,21 @@ span.bp3-popover-target, span.bp3-popover-target .bp3-button {
 .bp3-non-ideal-state {
   padding: 2em;
 }
+.track-row {
+  position: relative;
+}
+.track-key {
+  text-align: right;
+  color: #aaa;
+  display: block;
+  position: absolute;
+  right: 1em;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.bp3-dark .bp3-input:focus {
+  box-shadow: none;
+}
+:focus {
+  outline: none;
+}
