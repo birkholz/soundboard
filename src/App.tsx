@@ -1,4 +1,4 @@
-import { Button } from "@blueprintjs/core";
+import { Button, ControlGroup, InputGroup } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
@@ -6,7 +6,7 @@ import { last } from "ramda";
 import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
-import FilePicker from "./components/FilePicker";
+import FileInput from "./components/FileInput";
 import { TrackList } from "./components/TrackList";
 import { getTrackDataFromFile } from "./helpers";
 import { keycodeNames } from "./keycodes";
@@ -38,6 +38,7 @@ declare var Audio: {
 export interface AppState {
   appInitialized: boolean;
   tracks: Track[];
+  filteredTracks: Track[];
   trackChanging: Track | null;
   devices: {
     [deviceId: string]: MediaDeviceInfo;
@@ -54,14 +55,17 @@ const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
 
 class App extends Component<{}, AppState> {
   playingTracks: AudioElement[];
+  filterInput: HTMLInputElement | null;
 
   constructor(props: {}) {
     super(props);
     this.playingTracks = [];
+    this.filterInput = null;
 
     this.state = getInitialAppState({
       appInitialized: false,
       tracks: [],
+      filteredTracks: [],
       trackChanging: null,
       devices: {},
       listeningForKey: false,
@@ -122,6 +126,9 @@ class App extends Component<{}, AppState> {
         }
         const track = tracks.find((t: Track) => t.keycode === message[codeType]);
         if (track) {
+          if (this.filterInput) {
+            this.filterInput.blur();
+          }
           this.playSound(track.file);
         }
       }
@@ -161,10 +168,17 @@ class App extends Component<{}, AppState> {
         event.preventDefault();
         event.stopPropagation();
         this.setState({ dragging: 0, loadingFiles: true });
-        this.fileDropHandler(event.dataTransfer.files);
+        const files = Array.from(event.dataTransfer.files);
+        this.fileHandler(files);
       },
       false
     );
+
+    document.addEventListener("keyup", event => {
+      if (event.key === "s" && this.filterInput) {
+        this.filterInput.focus();
+      }
+    });
 
     this.setState({ appInitialized: true });
   }
@@ -173,27 +187,18 @@ class App extends Component<{}, AppState> {
     for (const file of files) {
       const track = await getTrackDataFromFile(file);
       const tracks = [...this.state.tracks, track];
-      this.setState({ tracks });
+      this.setState({ tracks, filteredTracks: tracks });
       updateTracksInStores(tracks);
     }
   };
 
-  fileDropHandler = (fileList: FileList) => {
-    const files = Array.from(fileList);
+  fileHandler = (files: File[]) => {
     const validAudioFiles = files.filter(file => {
       const extension = last(file.name.split(".")) || "";
       return VALID_EXTENSIONS.includes(extension);
     });
     this.processFiles(validAudioFiles).then(() => {
       this.setState({ loadingFiles: false });
-    });
-  };
-
-  onTrackReceived = (file: File) => {
-    getTrackDataFromFile(file).then((track: Track) => {
-      const tracks = [...this.state.tracks, track];
-      this.setState({ tracks });
-      updateTracksInStores(tracks);
     });
   };
 
@@ -235,7 +240,7 @@ class App extends Component<{}, AppState> {
           track.keycode = newKey;
         }
       });
-      this.setState({ tracks, trackChanging: null, listeningForKey: false });
+      this.setState({ tracks, filteredTracks: tracks, trackChanging: null, listeningForKey: false });
       updateBaseTrackInStateStore(tracks);
     }
   };
@@ -257,7 +262,7 @@ class App extends Component<{}, AppState> {
   deleteTrack = (track: Track) => {
     const tracks = this.state.tracks.filter(t => t !== track);
     this.stopAllSounds();
-    this.setState({ tracks });
+    this.setState({ tracks, filteredTracks: tracks });
     removeTrackFromStores(tracks, track);
   };
 
@@ -268,19 +273,21 @@ class App extends Component<{}, AppState> {
     updateOutputsInStore(outputs);
   };
 
-  renderStop = () => {
-    const { stopKey, listeningForKey } = this.state;
-    const stopIcon = stopKey === UNSET_KEYCODE ? "insert" : undefined;
-    const { [stopKey]: stopText = "" } = keycodeNames;
-    return (
-      <div>
-        <Button onClick={this.stopAllSounds} text="Stop" />
-        <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={listeningForKey} />
-      </div>
-    );
+  filterTracks = (event: React.FormEvent) => {
+    // @ts-ignore
+    const inputValue = event.target.value;
+    let filteredTracks = this.state.tracks;
+    if (inputValue) {
+      filteredTracks = filteredTracks.filter(track => track.name.includes(inputValue));
+    }
+    this.setState({ filteredTracks });
   };
 
   render() {
+    const { stopKey, listeningForKey } = this.state;
+    const { [stopKey]: stopText = "(unset)" } = keycodeNames;
+    const setInput = (ele: HTMLInputElement) => (this.filterInput = ele);
+
     return (
       <div className="App">
         <div className="drag-target" style={{ display: this.state.dragging > 0 ? "block" : "none" }}>
@@ -289,23 +296,38 @@ class App extends Component<{}, AppState> {
         <div className="loading-files" style={{ display: this.state.loadingFiles ? "block" : "none" }}>
           <div>Loading...</div>
         </div>
-        <Devices
-          devices={Object.values(this.state.devices)}
-          outputs={this.state.outputs}
-          onItemSelect={this.onDeviceSelect}
-        />
-        <FilePicker extensions={VALID_EXTENSIONS} onChange={this.onTrackReceived} onError={this.logFileError}>
-          <Button text="Add Sound" />
-        </FilePicker>
-        {this.renderStop()}
         <TrackList
-          tracks={this.state.tracks}
-          trackChanging={this.state.trackChanging}
+          tracks={this.state.filteredTracks}
           listeningForKey={this.state.listeningForKey}
+          filtered={this.filterInput && this.filterInput.value !== ""}
           playSound={this.playSound}
           changeTrackKey={this.changeTrackKey}
           deleteTrack={this.deleteTrack}
         />
+        <div className="management-bar-wrapper">
+          <InputGroup
+            onChange={this.filterTracks}
+            leftIcon="search"
+            placeholder="Filter..."
+            large={true}
+            inputRef={setInput}
+          />
+          <ControlGroup fill={true}>
+            <FileInput onChange={this.fileHandler}>
+              <Button className="upload-button" text="Add Sound" icon="plus" />
+            </FileInput>
+            <Button onClick={this.stopAllSounds} text="Stop" icon="stop" />
+            <Button onClick={this.changeStopKey} text={stopText} disabled={listeningForKey} />
+          </ControlGroup>
+          <div className="management-bar-divider" />
+          <ControlGroup className="devices" fill={true}>
+            <Devices
+              devices={Object.values(this.state.devices)}
+              outputs={this.state.outputs}
+              onItemSelect={this.onDeviceSelect}
+            />
+          </ControlGroup>
+        </div>
       </div>
     );
   }

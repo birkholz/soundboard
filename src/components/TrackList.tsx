@@ -1,76 +1,103 @@
-import { Button } from "@blueprintjs/core";
+import { Button, ContextMenu, Menu, MenuItem, NonIdealState } from "@blueprintjs/core";
+import classNames from "classnames";
 import * as React from "react";
 import { ReactNode, SFC } from "react";
 import { keycodeNames } from "../keycodes";
-import { Track } from "../types";
+import { Track, UNSET_KEYCODE } from "../types";
 
 export interface TrackListProps {
   tracks: Track[];
-  trackChanging: Track | null;
+  listeningForKey: boolean;
+  filtered: boolean | null;
+  playSound: (file: string) => Promise<void>;
+  changeTrackKey: (track: Track) => void;
+  deleteTrack: (track: Track) => void;
+}
+
+export interface TrackRowProps {
+  index: number;
+  track: Track;
   listeningForKey: boolean;
   playSound: (file: string) => Promise<void>;
   changeTrackKey: (track: Track) => void;
   deleteTrack: (track: Track) => void;
 }
 
-const getKeyText = (track: Track, trackChanging: Track | null) => {
-  if (track === trackChanging) {
-    return "Press any key";
-  } else if (!track.keycode) {
-    return "";
-  } else {
-    return keycodeNames[track.keycode];
+class TrackRow extends React.Component<TrackRowProps, { isContextMenuOpen: boolean }> {
+  public state = { isContextMenuOpen: false };
+  public render() {
+    const { index, track, playSound, listeningForKey } = this.props;
+    const onClickPlay = () => playSound(track.file);
+    const classes = classNames("track-row", { "context-menu-open": this.state.isContextMenuOpen });
+    const keyDisplay = track.keycode !== UNSET_KEYCODE ? `${keycodeNames[track.keycode]}` : undefined;
+    return (
+      <div onContextMenu={this.showContextMenu}>
+        <Button
+          className={classes}
+          key={index}
+          fill={true}
+          onClick={onClickPlay}
+          large={true}
+          disabled={listeningForKey}
+        >
+          <span className="track=name">{track.name}</span>
+          <span className="track-key">{keyDisplay}</span>
+        </Button>
+      </div>
+    );
   }
-};
+
+  private showContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const { track, changeTrackKey, deleteTrack } = this.props;
+    const onChangeTrackKeyClick = () => changeTrackKey(track);
+    const onDeleteTrackClick = () => deleteTrack(track);
+    ContextMenu.show(
+      <Menu>
+        <MenuItem onClick={onChangeTrackKeyClick} text="Set Keybind" icon="edit" />
+        <MenuItem onClick={onDeleteTrackClick} text="Delete" icon="trash" />
+      </Menu>,
+      { left: e.clientX, top: e.clientY },
+      () => this.setState({ isContextMenuOpen: false })
+    );
+    // indicate that context menu is open so we can add a CSS class to this element
+    this.setState({ isContextMenuOpen: true });
+  };
+}
 
 export const TrackList: SFC<TrackListProps> = ({
   tracks,
-  trackChanging,
   listeningForKey,
   playSound,
   changeTrackKey,
-  deleteTrack
+  deleteTrack,
+  filtered
 }: TrackListProps) => {
-  if (!tracks.length) {
-    return null;
+  if (filtered && !tracks.length) {
+    return <NonIdealState icon="search" title="No results." />;
+  } else if (!tracks.length) {
+    const desc = (
+      <>
+        <p>Add sounds by clicking "Add Sound" below, </p>
+        <p>or dragging files into the window.</p>
+      </>
+    );
+    return <NonIdealState icon="add" title="No Sounds" description={desc} />;
   }
 
   const trackRows: ReactNode[] = tracks.map((track, index) => {
-    const canHaveKeyAssigned = track.keycode === -1 && !listeningForKey;
-    const icon = canHaveKeyAssigned ? "insert" : undefined;
-
-    const onPlayClick = () => playSound(track.file);
-    const onChangeTrackKeyClick = () => changeTrackKey(track);
-    const onDeleteTrackClick = () => deleteTrack(track);
     return (
-      <tr key={index}>
-        <td>
-          <Button onClick={onPlayClick} text={track.name} />
-        </td>
-        <td>
-          <Button
-            onClick={onChangeTrackKeyClick}
-            disabled={listeningForKey}
-            icon={icon}
-            text={getKeyText(track, trackChanging)}
-          />
-        </td>
-        <td>
-          <Button onClick={onDeleteTrackClick} disabled={listeningForKey} icon="trash" />
-        </td>
-      </tr>
+      <TrackRow
+        key={index}
+        index={index}
+        track={track}
+        listeningForKey={listeningForKey}
+        playSound={playSound}
+        changeTrackKey={changeTrackKey}
+        deleteTrack={deleteTrack}
+      />
     );
   });
 
-  return (
-    <table className="bp3-html-table bp3-html-table-striped">
-      <thead>
-        <tr>
-          <th>Track</th>
-          <th>Keybinding</th>
-        </tr>
-      </thead>
-      <tbody>{trackRows}</tbody>
-    </table>
-  );
+  return <div>{trackRows}</div>;
 };
