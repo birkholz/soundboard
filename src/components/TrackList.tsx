@@ -6,33 +6,43 @@ import { Track } from "../types";
 
 export interface TrackListProps {
   tracks: Track[];
-  trackChanging: Track | null;
   listeningForKey: boolean;
   playSound: (file: string) => Promise<void>;
   changeTrackKey: (track: Track) => void;
   deleteTrack: (track: Track) => void;
 }
 
-const getKeyText = (track: Track, trackChanging: Track | null) => {
-  if (track === trackChanging) {
-    return "Press any key";
-  } else if (!track.keycode) {
-    return "";
-  } else {
+const getKeyText = (track: Track) => {
+  if (track.keycode) {
     return keycodeNames[track.keycode];
+  } else {
+    return "";
   }
 };
 
 export const TrackList: SFC<TrackListProps> = ({
   tracks,
-  trackChanging,
   listeningForKey,
   playSound,
   changeTrackKey,
   deleteTrack
 }: TrackListProps) => {
-  if (!tracks.length) {
-    return null;
+  const trackFilter = document.querySelector(".track-filter");
+  // @ts-ignore
+  const filtered = trackFilter && trackFilter.value !== "";
+  if (filtered && !tracks.length) {
+    return (
+      <div className="empty-text">
+        <p>No matching sounds.</p>
+      </div>
+    );
+  } else if (!tracks.length) {
+    return (
+      <div className="empty-text">
+        <p>Add sounds by clicking "Add Sound" below, or dragging files into the window.</p>
+        <p>Supported file types: .mp3, .wav, .ogg</p>
+      </div>
+    );
   }
 
   const trackRows: ReactNode[] = tracks.map((track, index) => {
@@ -48,12 +58,7 @@ export const TrackList: SFC<TrackListProps> = ({
           <Button onClick={onPlayClick} text={track.name} />
         </td>
         <td>
-          <Button
-            onClick={onChangeTrackKeyClick}
-            disabled={listeningForKey}
-            icon={icon}
-            text={getKeyText(track, trackChanging)}
-          />
+          <Button onClick={onChangeTrackKeyClick} disabled={listeningForKey} icon={icon} text={getKeyText(track)} />
         </td>
         <td>
           <Button onClick={onDeleteTrackClick} disabled={listeningForKey} icon="trash" />

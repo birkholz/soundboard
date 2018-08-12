@@ -1,4 +1,4 @@
-import { Button } from "@blueprintjs/core";
+import { Button, ControlGroup } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
@@ -124,6 +124,8 @@ class App extends Component<{}, AppState> {
         }
         const track = tracks.find((t: Track) => t.keycode === message[codeType]);
         if (track) {
+          // @ts-ignore
+          document.querySelector(".track-filter").blur();
           this.playSound(track.file);
         }
       }
@@ -170,10 +172,10 @@ class App extends Component<{}, AppState> {
 
     document.addEventListener("keyup", event => {
       if (event.key === "s") {
-        const track = document.querySelector(".track-filter");
-        if (track) {
+        const trackFilter = document.querySelector(".track-filter");
+        if (trackFilter) {
           // @ts-ignore
-          track.focus();
+          trackFilter.focus();
         }
       }
     });
@@ -280,18 +282,6 @@ class App extends Component<{}, AppState> {
     updateOutputsInStore(outputs);
   };
 
-  renderStop = () => {
-    const { stopKey, listeningForKey } = this.state;
-    const stopIcon = stopKey === UNSET_KEYCODE ? "insert" : undefined;
-    const { [stopKey]: stopText = "" } = keycodeNames;
-    return (
-      <div>
-        <Button onClick={this.stopAllSounds} text="Stop" />
-        <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={listeningForKey} />
-      </div>
-    );
-  };
-
   filterTracks = (event: React.FormEvent) => {
     // @ts-ignore
     const inputValue = event.target.value;
@@ -303,32 +293,42 @@ class App extends Component<{}, AppState> {
   };
 
   render() {
+    const { stopKey, listeningForKey } = this.state;
+    const stopIcon = stopKey === UNSET_KEYCODE ? "insert" : undefined;
+    const { [stopKey]: stopText = "" } = keycodeNames;
+
     return (
-      <div className="App">
+      <div className="App bp3-dark">
         <div className="drag-target" style={{ display: this.state.dragging > 0 ? "block" : "none" }}>
           <div>Drop File(s) Here</div>
         </div>
         <div className="loading-files" style={{ display: this.state.loadingFiles ? "block" : "none" }}>
           <div>Loading...</div>
         </div>
-        <Devices
-          devices={Object.values(this.state.devices)}
-          outputs={this.state.outputs}
-          onItemSelect={this.onDeviceSelect}
-        />
-        <FilePicker extensions={VALID_EXTENSIONS} onChange={this.onTrackReceived} onError={this.logFileError}>
-          <Button text="Add Sound" />
-        </FilePicker>
-        {this.renderStop()}
         <TrackList
           tracks={this.state.filteredTracks}
-          trackChanging={this.state.trackChanging}
           listeningForKey={this.state.listeningForKey}
           playSound={this.playSound}
           changeTrackKey={this.changeTrackKey}
           deleteTrack={this.deleteTrack}
         />
-        <input className="track-filter" onInput={this.filterTracks} placeholder="Filter..." />
+        <div className="management-bar-wrapper">
+          <input className="bp3-input track-filter" onInput={this.filterTracks} placeholder="Filter..." />
+          <ControlGroup fill={true}>
+            <FilePicker extensions={VALID_EXTENSIONS} onChange={this.onTrackReceived} onError={this.logFileError}>
+              <Button text="Add Sound" />
+            </FilePicker>
+            <Button onClick={this.stopAllSounds} text="Stop" />
+            <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={listeningForKey} />
+          </ControlGroup>
+          <ControlGroup className="devices" fill={true}>
+            <Devices
+              devices={Object.values(this.state.devices)}
+              outputs={this.state.outputs}
+              onItemSelect={this.onDeviceSelect}
+            />
+          </ControlGroup>
+        </div>
       </div>
     );
   }

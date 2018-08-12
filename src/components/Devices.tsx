@@ -1,4 +1,4 @@
-import { Button, FormGroup, MenuItem } from "@blueprintjs/core";
+import { Button, ControlGroup, MenuItem } from "@blueprintjs/core";
 import { IListItemsProps, ItemPredicate, Select } from "@blueprintjs/select";
 import * as React from "react";
 import { MouseEvent, SFC } from "react";
@@ -39,7 +39,7 @@ const onSelect = (
 
 export const Devices: SFC<DevicesProps> = ({ devices, outputs, onItemSelect }: DevicesProps) => {
   return (
-    <FormGroup>
+    <ControlGroup className="devices" fill={true}>
       <DeviceSelect
         filterable={false}
         items={devices}
@@ -60,6 +60,6 @@ export const Devices: SFC<DevicesProps> = ({ devices, outputs, onItemSelect }: D
       >
         <Button rightIcon="caret-down" text={outputs[1] ? outputs[1].label : "(Loading...)"} />
       </DeviceSelect>
-    </FormGroup>
+    </ControlGroup>
   );
 };
