@@ -1,14 +1,14 @@
 import { Button } from "@blueprintjs/core";
 import * as React from "react";
 import { ReactNode, SFC } from "react";
-import { Track } from "../App";
 import { keycodeNames } from "../keycodes";
+import { Track } from "../types";
 
 export interface TrackListProps {
   tracks: Track[];
   trackChanging: Track | null;
   listeningForKey: boolean;
-  playSound: (file: File) => void;
+  playSound: (file: string) => Promise<void>;
   changeTrackKey: (track: Track) => void;
   deleteTrack: (track: Track) => void;
 }
@@ -36,7 +36,7 @@ export const TrackList: SFC<TrackListProps> = ({
   }
 
   const trackRows: ReactNode[] = tracks.map((track, index) => {
-    const canHaveKeyAssigned = !track.keycode && !listeningForKey;
+    const canHaveKeyAssigned = track.keycode === -1 && !listeningForKey;
     const icon = canHaveKeyAssigned ? "insert" : undefined;
 
     const onPlayClick = () => playSound(track.file);
@@ -45,7 +45,7 @@ export const TrackList: SFC<TrackListProps> = ({
     return (
       <tr key={index}>
         <td>
-          <Button onClick={onPlayClick} text={track.file.name} />
+          <Button onClick={onPlayClick} text={track.name} />
         </td>
         <td>
           <Button

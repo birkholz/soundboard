@@ -2,7 +2,7 @@ import { Button, FormGroup, MenuItem } from "@blueprintjs/core";
 import { IListItemsProps, ItemPredicate, Select } from "@blueprintjs/select";
 import * as React from "react";
 import { MouseEvent, SFC } from "react";
-import { OutputNumber, Outputs } from "../App";
+import { OutputNumber, Outputs } from "../types";
 
 export interface DevicesProps {
   devices: MediaDeviceInfo[];

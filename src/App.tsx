@@ -2,94 +2,102 @@ import { Button } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
-import * as React from "react";
 import { Component } from "react";
+import * as React from "react";
 import { Devices } from "./components/Devices";
 import FilePicker from "./components/FilePicker";
+
 import { TrackList } from "./components/TrackList";
+import { getSoundFileAsDataURI } from "./helpers";
 import { keycodeNames } from "./keycodes";
-
+import {
+  getInitialAppState,
+  removeTrackFromStores,
+  updateBaseTrackInStateStore,
+  updateOutputsInStore,
+  updateStopKeyInStateStore,
+  updateTracksInStores
+} from "./store";
+import { AudioElement, IOHookKeydownEvent, OutputNumber, Outputs, Track } from "./types";
 const electron = window.require("electron");
-
-export interface Track {
-  file: File;
-  // TODO: Edward *will* destroy this
-  keycode: number | null;
-}
-
-interface AudioElement extends HTMLAudioElement {
-  setSinkId: (deviceId: string) => Promise<undefined>;
-}
 
 declare var Audio: {
   new (src?: string): AudioElement;
 };
 
-export type Outputs = [MediaDeviceInfo, MediaDeviceInfo];
-
-interface AppState {
+export interface AppState {
+  appInitialized: boolean;
   tracks: Track[];
   trackChanging: Track | null;
-  devices: MediaDeviceInfo[];
+  devices: {
+    [deviceId: string]: MediaDeviceInfo;
+  };
   listeningForKey: boolean;
   outputs: Outputs;
   sources: AudioBufferSourceNode[];
-  stopKey: number | null;
-}
-
-export enum OutputNumber {
-  One = 0,
-  Two = 1
-}
-
-export interface IOHookKeydownEvent {
-  keycode: number;
-  rawcode: number;
-  type: "keydown";
-  altKey: boolean;
-  shiftKey: boolean;
-  ctrlKey: boolean;
-  metaKey: boolean;
+  stopKey: number;
 }
 
 const codeType = window.process.platform === "darwin" ? "keycode" : "rawcode";
 const ESCAPE_KEY = window.process.platform === "darwin" ? 1 : 27;
+const UNSET_KEYCODE = -1;
 
 class App extends Component<{}, AppState> {
-  listener: EventListenerOrEventListenerObject;
   playingTracks: AudioElement[];
 
   constructor(props: {}) {
     super(props);
     this.playingTracks = [];
 
-    this.state = {
+    this.state = getInitialAppState({
+      appInitialized: false,
       tracks: [],
       trackChanging: null,
-      devices: [],
+      devices: {},
       listeningForKey: false,
       outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
       sources: [],
-      stopKey: null
-    };
-  }
-
-  updateDevices = async () => {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(device => device.kind === "audiooutput");
-  };
-
-  componentWillMount() {
-    // Set initial outputs
-    this.updateDevices().then(devices => {
-      const [device1, device2] = devices;
-      const cableInputDevice = devices.find(({ label }) => label.includes("CABLE Input")) || device2;
-      const outputs: Outputs = [device1, cableInputDevice];
-      this.setState({ devices, outputs });
+      stopKey: UNSET_KEYCODE
     });
   }
 
+  updateDevices = async (): Promise<{ [deviceId: string]: MediaDeviceInfo }> => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioDevices = devices.filter(device => device.kind === "audiooutput");
+    return audioDevices.reduce((audioDeviceMap, audioDevice) => {
+      return {
+        ...audioDeviceMap,
+        [audioDevice.deviceId]: audioDevice
+      };
+    }, {});
+  };
+
+  initializeDevicesAndOutputs = async () => {
+    this.updateDevices().then(devices => {
+      const [defaultDevice, backupDevice] = Object.values(devices);
+      const { outputs } = this.state;
+      let [output1, output2] = outputs;
+      if (!devices[output1.deviceId]) {
+        output1 = defaultDevice;
+      }
+      if (!devices[output2.deviceId]) {
+        // Attempt to default to VB CABLE Input
+        output2 = Object.values(devices).find(({ label }) => label.includes("CABLE Input")) || backupDevice;
+      }
+
+      const updatedOutputs: Outputs = [output1, output2];
+      this.setState({
+        devices,
+        outputs: updatedOutputs
+      });
+      updateOutputsInStore(updatedOutputs);
+    });
+  };
+
   componentDidMount() {
+    // Set initial outputs
+    this.initializeDevicesAndOutputs();
+
     // Set global keybinding listener
     electron.ipcRenderer.on("keydown", (_: IpcRenderer, message: IOHookKeydownEvent) => {
       const { trackChanging, listeningForKey, stopKey, tracks } = this.state;
@@ -110,19 +118,32 @@ class App extends Component<{}, AppState> {
     navigator.mediaDevices.ondevicechange = () => {
       this.updateDevices().then(devices => this.setState({ devices }));
     };
+
+    this.setState({ appInitialized: true });
   }
 
-  changeFile = (file: File) => {
-    const tracks = this.state.tracks;
-    tracks.push({ file, keycode: null });
-    this.setState({ tracks });
+  onTrackReceived = (file: File) => {
+    getSoundFileAsDataURI(file).then((soundBinary: string) => {
+      const tracks = [
+        ...this.state.tracks,
+        {
+          id: `_${Math.random()
+            .toString(36)
+            .substr(2, 9)}`,
+          file: soundBinary,
+          name: file.name,
+          keycode: UNSET_KEYCODE
+        }
+      ];
+      this.setState({ tracks });
+      updateTracksInStores(tracks);
+    });
   };
 
-  playSound = async (track: File) => {
+  playSound = async (track: string) => {
     const [output1, output2] = this.state.outputs;
-    const objUrl = URL.createObjectURL(track);
-    const audio1 = new Audio(objUrl);
-    const audio2 = new Audio(objUrl);
+    const audio1 = new Audio(track);
+    const audio2 = new Audio(track);
     await audio1.setSinkId(output1.deviceId);
     await audio2.setSinkId(output2.deviceId);
     audio1.play();
@@ -150,7 +171,7 @@ class App extends Component<{}, AppState> {
     const { tracks, trackChanging, listeningForKey, stopKey } = this.state;
     const eventCode = event[codeType];
     // Don't allow the escape key or the stopKey to be used for a keybinding
-    const newKey = eventCode === ESCAPE_KEY || eventCode === stopKey ? null : eventCode;
+    const newKey = eventCode === ESCAPE_KEY || eventCode === stopKey ? -1 : eventCode;
     if (trackChanging && listeningForKey) {
       tracks.forEach(track => {
         if (track === trackChanging) {
@@ -158,6 +179,7 @@ class App extends Component<{}, AppState> {
         }
       });
       this.setState({ tracks, trackChanging: null, listeningForKey: false });
+      updateBaseTrackInStateStore(tracks);
     }
   };
 
@@ -169,8 +191,9 @@ class App extends Component<{}, AppState> {
     const { listeningForKey } = this.state;
     if (listeningForKey) {
       const eventCode = event[codeType];
-      const newKey = eventCode === ESCAPE_KEY ? null : eventCode;
+      const newKey = eventCode === ESCAPE_KEY ? UNSET_KEYCODE : eventCode;
       this.setState({ listeningForKey: false, stopKey: newKey });
+      updateStopKeyInStateStore(newKey);
     }
   };
 
@@ -178,18 +201,20 @@ class App extends Component<{}, AppState> {
     const tracks = this.state.tracks.filter(t => t !== track);
     this.stopAllSounds();
     this.setState({ tracks });
+    removeTrackFromStores(tracks, track);
   };
 
   onDeviceSelect = (device: MediaDeviceInfo, outputNumber: OutputNumber) => {
     const outputs = this.state.outputs;
     outputs[outputNumber] = device;
     this.setState({ outputs });
+    updateOutputsInStore(outputs);
   };
 
   renderStop = () => {
     const { stopKey, listeningForKey } = this.state;
-    const stopIcon = !this.state.stopKey ? "insert" : undefined;
-    const stopText = keycodeNames[stopKey || -1] || "";
+    const stopIcon = stopKey === UNSET_KEYCODE ? "insert" : undefined;
+    const { [stopKey]: stopText = "" } = keycodeNames;
     return (
       <div>
         <Button onClick={this.stopAllSounds} text="Stop" />
@@ -201,8 +226,12 @@ class App extends Component<{}, AppState> {
   render() {
     return (
       <div className="App">
-        <Devices devices={this.state.devices} outputs={this.state.outputs} onItemSelect={this.onDeviceSelect} />
-        <FilePicker extensions={["wav", "mp3", "ogg"]} onChange={this.changeFile} onError={this.logFileError}>
+        <Devices
+          devices={Object.values(this.state.devices)}
+          outputs={this.state.outputs}
+          onItemSelect={this.onDeviceSelect}
+        />
+        <FilePicker extensions={["wav", "mp3", "ogg"]} onChange={this.onTrackReceived} onError={this.logFileError}>
           <Button text="Add Sound" />
         </FilePicker>
         {this.renderStop()}
