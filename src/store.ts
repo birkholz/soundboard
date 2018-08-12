@@ -3,7 +3,6 @@ import { AppState } from "./App";
 import { BaseTrack, ElectronStore, Outputs, Track } from "./types";
 
 const Store: typeof ElectronStore = window.require("electron-store");
-const isStoreNotEmpty = (store: ElectronStore) => store.size !== 0;
 
 interface TrackStore {
   [trackId: string]: string;
@@ -63,23 +62,11 @@ export const getTracks = (baseTracks: BaseTrack[]) => {
 };
 
 export const getInitialAppState = (defaultState: AppState): AppState => {
-  let updatedState: AppState = {
-    ...defaultState
+  const { outputs, stopKey } = defaultState;
+  return {
+    ...defaultState,
+    outputs: stateStore.get("outputs", outputs),
+    stopKey: stateStore.get("stopKey", stopKey),
+    tracks: getTracks(stateStore.get("tracks", []))
   };
-  if (isStoreNotEmpty(stateStore)) {
-    const { outputs, stopKey } = defaultState;
-    updatedState = {
-      ...updatedState,
-      outputs: stateStore.get("outputs", outputs),
-      stopKey: stateStore.get("stopKey", stopKey)
-    };
-
-    if (isStoreNotEmpty(trackStore)) {
-      updatedState = {
-        ...updatedState,
-        tracks: getTracks(stateStore.get("tracks"))
-      };
-    }
-  }
-  return updatedState;
 };
