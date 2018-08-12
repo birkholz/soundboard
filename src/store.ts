@@ -63,10 +63,12 @@ export const getTracks = (baseTracks: BaseTrack[]) => {
 
 export const getInitialAppState = (defaultState: AppState): AppState => {
   const { outputs, stopKey } = defaultState;
+  const tracks = getTracks(stateStore.get("tracks", []));
   return {
     ...defaultState,
     outputs: stateStore.get("outputs", outputs),
     stopKey: stateStore.get("stopKey", stopKey),
-    tracks: getTracks(stateStore.get("tracks", []))
+    tracks,
+    filteredTracks: tracks
   };
 };

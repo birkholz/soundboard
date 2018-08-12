@@ -64,12 +64,7 @@ export const TrackList: SFC<TrackListProps> = ({
 
   return (
     <table className="bp3-html-table bp3-html-table-striped">
-      <thead>
-        <tr>
-          <th>Track</th>
-          <th>Keybinding</th>
-        </tr>
-      </thead>
+      <thead />
       <tbody>{trackRows}</tbody>
     </table>
   );

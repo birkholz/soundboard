@@ -38,6 +38,7 @@ declare var Audio: {
 export interface AppState {
   appInitialized: boolean;
   tracks: Track[];
+  filteredTracks: Track[];
   trackChanging: Track | null;
   devices: {
     [deviceId: string]: MediaDeviceInfo;
@@ -62,6 +63,7 @@ class App extends Component<{}, AppState> {
     this.state = getInitialAppState({
       appInitialized: false,
       tracks: [],
+      filteredTracks: [],
       trackChanging: null,
       devices: {},
       listeningForKey: false,
@@ -166,6 +168,16 @@ class App extends Component<{}, AppState> {
       false
     );
 
+    document.addEventListener("keyup", event => {
+      if (event.key === "s") {
+        const track = document.querySelector(".track-filter");
+        if (track) {
+          // @ts-ignore
+          track.focus();
+        }
+      }
+    });
+
     this.setState({ appInitialized: true });
   }
 
@@ -173,7 +185,7 @@ class App extends Component<{}, AppState> {
     for (const file of files) {
       const track = await getTrackDataFromFile(file);
       const tracks = [...this.state.tracks, track];
-      this.setState({ tracks });
+      this.setState({ tracks, filteredTracks: tracks });
       updateTracksInStores(tracks);
     }
   };
@@ -192,7 +204,7 @@ class App extends Component<{}, AppState> {
   onTrackReceived = (file: File) => {
     getTrackDataFromFile(file).then((track: Track) => {
       const tracks = [...this.state.tracks, track];
-      this.setState({ tracks });
+      this.setState({ tracks, filteredTracks: tracks });
       updateTracksInStores(tracks);
     });
   };
@@ -235,7 +247,7 @@ class App extends Component<{}, AppState> {
           track.keycode = newKey;
         }
       });
-      this.setState({ tracks, trackChanging: null, listeningForKey: false });
+      this.setState({ tracks, filteredTracks: tracks, trackChanging: null, listeningForKey: false });
       updateBaseTrackInStateStore(tracks);
     }
   };
@@ -257,7 +269,7 @@ class App extends Component<{}, AppState> {
   deleteTrack = (track: Track) => {
     const tracks = this.state.tracks.filter(t => t !== track);
     this.stopAllSounds();
-    this.setState({ tracks });
+    this.setState({ tracks, filteredTracks: tracks });
     removeTrackFromStores(tracks, track);
   };
 
@@ -280,6 +292,16 @@ class App extends Component<{}, AppState> {
     );
   };
 
+  filterTracks = (event: React.FormEvent) => {
+    // @ts-ignore
+    const inputValue = event.target.value;
+    let filteredTracks = this.state.tracks;
+    if (inputValue) {
+      filteredTracks = filteredTracks.filter(track => track.name.includes(inputValue));
+    }
+    this.setState({ filteredTracks });
+  };
+
   render() {
     return (
       <div className="App">
@@ -299,13 +321,14 @@ class App extends Component<{}, AppState> {
         </FilePicker>
         {this.renderStop()}
         <TrackList
-          tracks={this.state.tracks}
+          tracks={this.state.filteredTracks}
           trackChanging={this.state.trackChanging}
           listeningForKey={this.state.listeningForKey}
           playSound={this.playSound}
           changeTrackKey={this.changeTrackKey}
           deleteTrack={this.deleteTrack}
         />
+        <input className="track-filter" onInput={this.filterTracks} placeholder="Filter..." />
       </div>
     );
   }
