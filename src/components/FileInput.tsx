@@ -30,6 +30,7 @@ class FileInput extends React.Component<FileInputProps> {
       <div className="add-button" style={this.props.style}>
         <input
           type="file"
+          multiple
           style={{ display: "none" }}
           onChange={this.handleUpload}
           ref={ele => (this.fileInput = ele)}
