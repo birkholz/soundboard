@@ -31,7 +31,7 @@ class TrackRow extends React.Component<TrackRowProps, { isContextMenuOpen: boole
     const classes = classNames("track-row", { "context-menu-open": this.state.isContextMenuOpen });
     const keyDisplay = track.keycode !== UNSET_KEYCODE ? `${keycodeNames[track.keycode]}` : undefined;
     return (
-      <div onContextMenu={this.showContextMenu}>
+      <div className="track-row" onContextMenu={this.showContextMenu}>
         <Button
           className={classes}
           key={index}
@@ -40,7 +40,7 @@ class TrackRow extends React.Component<TrackRowProps, { isContextMenuOpen: boole
           large={true}
           disabled={listeningForKey}
         >
-          <span className="track=name">{track.name}</span>
+          <span className="track-name">{track.name}</span>
           <span className="track-key">{keyDisplay}</span>
         </Button>
       </div>
@@ -99,5 +99,5 @@ export const TrackList: SFC<TrackListProps> = ({
     );
   });
 
-  return <div>{trackRows}</div>;
+  return <div className="track-list">{trackRows}</div>;
 };
