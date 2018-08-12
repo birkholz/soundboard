@@ -1,9 +1,8 @@
 import * as React from "react";
-import { FileChanged } from "./FilePicker";
 
 export interface FileInputProps {
   style?: object;
-  onChange: FileChanged;
+  onChange: (files: File[]) => void;
 }
 
 export interface FileEvent {
@@ -17,9 +16,9 @@ interface ChildProps {
 class FileInput extends React.Component<FileInputProps> {
   fileInput: HTMLInputElement | null;
   handleUpload = (evt: FileEvent) => {
-    const file = evt.target.files && evt.target.files[0];
-    if (file) {
-      this.props.onChange(file);
+    const files = evt.target.files;
+    if (files) {
+      this.props.onChange(Array.from(files));
     }
     if (this.fileInput) {
       this.fileInput.value = "";

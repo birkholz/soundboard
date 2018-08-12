@@ -6,7 +6,7 @@ import { last } from "ramda";
 import * as React from "react";
 import { Component } from "react";
 import { Devices } from "./components/Devices";
-import FilePicker from "./components/FilePicker";
+import FileInput from "./components/FileInput";
 import { TrackList } from "./components/TrackList";
 import { getTrackDataFromFile } from "./helpers";
 import { keycodeNames } from "./keycodes";
@@ -165,7 +165,8 @@ class App extends Component<{}, AppState> {
         event.preventDefault();
         event.stopPropagation();
         this.setState({ dragging: 0, loadingFiles: true });
-        this.fileDropHandler(event.dataTransfer.files);
+        const files = Array.from(event.dataTransfer.files);
+        this.fileHandler(files);
       },
       false
     );
@@ -192,22 +193,13 @@ class App extends Component<{}, AppState> {
     }
   };
 
-  fileDropHandler = (fileList: FileList) => {
-    const files = Array.from(fileList);
+  fileHandler = (files: File[]) => {
     const validAudioFiles = files.filter(file => {
       const extension = last(file.name.split(".")) || "";
       return VALID_EXTENSIONS.includes(extension);
     });
     this.processFiles(validAudioFiles).then(() => {
       this.setState({ loadingFiles: false });
-    });
-  };
-
-  onTrackReceived = (file: File) => {
-    getTrackDataFromFile(file).then((track: Track) => {
-      const tracks = [...this.state.tracks, track];
-      this.setState({ tracks, filteredTracks: tracks });
-      updateTracksInStores(tracks);
     });
   };
 
@@ -315,9 +307,9 @@ class App extends Component<{}, AppState> {
         <div className="management-bar-wrapper">
           <input className="bp3-input track-filter" onInput={this.filterTracks} placeholder="Filter..." />
           <ControlGroup fill={true}>
-            <FilePicker extensions={VALID_EXTENSIONS} onChange={this.onTrackReceived} onError={this.logFileError}>
-              <Button text="Add Sound" />
-            </FilePicker>
+            <FileInput onChange={this.fileHandler}>
+              <Button className="upload-button" text="Add Sound" />
+            </FileInput>
             <Button onClick={this.stopAllSounds} text="Stop" />
             <Button onClick={this.changeStopKey} text={stopText} icon={stopIcon} disabled={listeningForKey} />
           </ControlGroup>

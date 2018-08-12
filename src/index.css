@@ -59,6 +59,11 @@ span.bp3-popover-target, span.bp3-popover-target .bp3-button {
 .management-bar > * {
   flex: 1 1 auto;
 }
+.upload-button {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
 .empty-text {
   font-size: 14px;
   padding: 2em;
