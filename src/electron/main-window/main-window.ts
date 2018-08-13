@@ -71,7 +71,7 @@ export function createMainWindow(appPath: string, showDelay: number = 100) {
     });
   });
 
-  window.on("close", () => {
+  window.on("closed", () => {
     iohook.unload();
     iohook.stop();
   });

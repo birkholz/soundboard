@@ -67,8 +67,8 @@ Sparky.task("default", ["copy-html"], () => {
   const rendererBundle = fuse
     .bundle("renderer")
     .instructions("> [app/index.tsx] + ~app/styles.ts + fuse-box-css")
-    .plugin(CSSPlugin())
     .plugin(...vendorStyles)
+    .plugin(CSSPlugin())
     .plugin(CopyPlugin({ useDefault: false, files: ASSETS, dest: "assets", resolve: "assets/" }));
 
   // and watch & hot reload unless we're bundling for production
