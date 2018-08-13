@@ -1,6 +1,4 @@
 import { Button, ControlGroup, InputGroup } from "@blueprintjs/core";
-import "@blueprintjs/core/lib/css/blueprint.css";
-import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { IpcRenderer } from "electron";
 import { last } from "ramda";
 import * as React from "react";
@@ -334,4 +332,5 @@ class App extends Component<{}, AppState> {
   }
 }
 
+export { App };
 export default App;
