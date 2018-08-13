@@ -33,7 +33,7 @@ export function createMainWindow(appPath: string, showDelay: number = 100) {
     show: false,
     resizable: true,
     useContentSize: true,
-    titleBarStyle: "hiddenInset",
+    titleBarStyle: "default",
     autoHideMenuBar: !isDev,
     // backgroundColor: '#fff',
     vibrancy: "light",
