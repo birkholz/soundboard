@@ -1,7 +1,6 @@
 // tslint:disable-next-line:no-var-requires
 const { app, BrowserWindow } = require("electron");
-// @ts-ignore
-import isDev from "electron-is-dev";
+import * as isDev from "electron-is-dev";
 import WindowStateManager = require("electron-window-state-manager");
 import iohook = require("iohook");
 import { loadURL } from "./load-url";

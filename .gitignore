@@ -9,3 +9,4 @@ tmp/
 dev-app-update.yml
 .vscode/
 coverage/
+iohook-crash.log
