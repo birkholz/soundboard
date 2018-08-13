@@ -114,10 +114,14 @@ class App extends Component<{}, AppState> {
 
     // Set global keybinding listener
     electron.ipcRenderer.on("keydown", (_: IpcRenderer, message: IOHookKeydownEvent) => {
-      const { trackChanging, listeningForKey, tracks } = this.state;
+      const { trackChanging, listeningForKey, tracks, stopKey } = this.state;
       if (listeningForKey || trackChanging) {
         trackChanging ? this.setTrackKey(message) : this.setStopKey(message);
       } else {
+        if (stopKey === message[codeType]) {
+          this.stopAllSounds();
+          return;
+        }
         const track = tracks.find((t: Track) => t.keycode === message[codeType]);
         if (track) {
           if (this.filterInput) {
