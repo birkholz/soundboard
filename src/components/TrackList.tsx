@@ -1,4 +1,4 @@
-import { Button, ContextMenu, Menu, MenuItem, NonIdealState } from "@blueprintjs/core";
+import { Button, ContextMenu, ControlGroup, EditableText, Menu, MenuItem, NonIdealState } from "@blueprintjs/core";
 import classNames from "classnames";
 import * as React from "react";
 import { ReactNode, SFC } from "react";
@@ -11,6 +11,7 @@ export interface TrackListProps {
   filtered: boolean | null;
   playSound: (file: string) => Promise<void>;
   changeTrackKey: (track: Track) => void;
+  changeTrackName: (track: Track, name: string) => void;
   deleteTrack: (track: Track) => void;
 }
 
@@ -20,49 +21,73 @@ export interface TrackRowProps {
   listeningForKey: boolean;
   playSound: (file: string) => Promise<void>;
   changeTrackKey: (track: Track) => void;
+  changeTrackName: (track: Track, name: string) => void;
   deleteTrack: (track: Track) => void;
 }
 
-class TrackRow extends React.Component<TrackRowProps, { isContextMenuOpen: boolean }> {
-  public state = { isContextMenuOpen: false };
-  public render() {
-    const { index, track, playSound, listeningForKey } = this.props;
-    const onClickPlay = () => playSound(track.file);
-    const classes = classNames("track-row", { "context-menu-open": this.state.isContextMenuOpen });
-    const keyDisplay = track.keycode !== UNSET_KEYCODE ? `${keycodeNames[track.keycode]}` : undefined;
-    return (
-      <div onContextMenu={this.showContextMenu}>
-        <Button
-          className={classes}
-          key={index}
-          fill={true}
-          onClick={onClickPlay}
-          large={true}
-          disabled={listeningForKey}
-        >
-          <span className="track=name">{track.name}</span>
-          <span className="track-key">{keyDisplay}</span>
-        </Button>
-      </div>
-    );
+class TrackRow extends React.Component<TrackRowProps, { isContextMenuOpen: boolean; editingName: boolean }> {
+  nameInput: EditableText | null;
+
+  constructor(props: TrackRowProps) {
+    super(props);
+    this.state = {
+      isContextMenuOpen: false,
+      editingName: false
+    };
+    this.nameInput = null;
   }
 
-  private showContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+  showContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const { track, changeTrackKey, deleteTrack } = this.props;
-    const onChangeTrackKeyClick = () => changeTrackKey(track);
+    const { track, deleteTrack } = this.props;
     const onDeleteTrackClick = () => deleteTrack(track);
+    const onRenameTrackClick = () => {
+      if (this.nameInput) {
+        this.setState({ editingName: true });
+      }
+    };
     ContextMenu.show(
       <Menu>
-        <MenuItem onClick={onChangeTrackKeyClick} text="Set Keybind" icon="edit" />
+        <MenuItem onClick={onRenameTrackClick} text="Rename" icon="edit" />
         <MenuItem onClick={onDeleteTrackClick} text="Delete" icon="trash" />
       </Menu>,
       { left: e.clientX, top: e.clientY },
       () => this.setState({ isContextMenuOpen: false })
     );
-    // indicate that context menu is open so we can add a CSS class to this element
     this.setState({ isContextMenuOpen: true });
   };
+
+  render() {
+    const { index, track, playSound, listeningForKey, changeTrackKey, changeTrackName } = this.props;
+    const { editingName } = this.state;
+    const onClickPlay = () => playSound(track.file);
+    const classes = classNames("track-row", { "context-menu-open": this.state.isContextMenuOpen });
+    const keyDisplay = track.keycode !== UNSET_KEYCODE ? `${keycodeNames[track.keycode]}` : "(unset)";
+    const editClasses = classNames({ editable: editingName });
+    const onChangeTrackKeyClick = () => changeTrackKey(track);
+    const onChangeTrackName = (value: string) => {
+      this.setState({ editingName: false });
+      changeTrackName(track, value);
+      // TODO: Prevent isActive in parent Button???
+    };
+    return (
+      <ControlGroup className={classes} key={index} onContextMenu={this.showContextMenu} fill={true}>
+        <Button onClick={onClickPlay} large={true} fill={true} disabled={editingName}>
+          <EditableText
+            defaultValue={track.name}
+            className={editClasses}
+            disabled={!editingName}
+            isEditing={editingName}
+            onConfirm={onChangeTrackName}
+            ref={e => (this.nameInput = e)}
+          />
+        </Button>
+        <Button large={true} onClick={onChangeTrackKeyClick} disabled={listeningForKey}>
+          {keyDisplay}
+        </Button>
+      </ControlGroup>
+    );
+  }
 }
 
 export const TrackList: SFC<TrackListProps> = ({
@@ -70,6 +95,7 @@ export const TrackList: SFC<TrackListProps> = ({
   listeningForKey,
   playSound,
   changeTrackKey,
+  changeTrackName,
   deleteTrack,
   filtered
 }: TrackListProps) => {
@@ -94,10 +120,11 @@ export const TrackList: SFC<TrackListProps> = ({
         listeningForKey={listeningForKey}
         playSound={playSound}
         changeTrackKey={changeTrackKey}
+        changeTrackName={changeTrackName}
         deleteTrack={deleteTrack}
       />
     );
   });
 
-  return <div>{trackRows}</div>;
+  return <div className="track-list">{trackRows}</div>;
 };

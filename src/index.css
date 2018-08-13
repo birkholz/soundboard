@@ -28,15 +28,10 @@ body {
   font-size: 28px;
 }
 .management-bar-wrapper {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%;
-}
-table {
-  width: 100%;
-}
-tbody tr td:nth-child(2), tbody tr td:last-child {
-  width: 10%;
+  z-index: 2;
 }
 span.bp3-popover-target, span.bp3-popover-target .bp3-button {
   display: block;
@@ -63,18 +58,6 @@ span.bp3-popover-target, span.bp3-popover-target .bp3-button {
 }
 .bp3-non-ideal-state {
   padding: 2em;
-}
-.track-row {
-  position: relative;
-}
-.track-key {
-  text-align: right;
-  color: #aaa;
-  display: block;
-  position: absolute;
-  right: 1em;
-  top: 50%;
-  transform: translateY(-50%);
 }
 .bp3-dark .bp3-input:focus {
   box-shadow: none;
@@ -118,4 +101,16 @@ span.bp3-popover-target, span.bp3-popover-target .bp3-button {
   text-align: center;
   color: #FFF;
   font-size: 28px;
+}
+.track-list {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 103px);
+  overflow-y: scroll;
+  z-index: 1;
+}
+.bp3-editable-text.bp3-disabled {
+  cursor: pointer;
 }

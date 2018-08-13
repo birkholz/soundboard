@@ -114,14 +114,10 @@ class App extends Component<{}, AppState> {
 
     // Set global keybinding listener
     electron.ipcRenderer.on("keydown", (_: IpcRenderer, message: IOHookKeydownEvent) => {
-      const { trackChanging, listeningForKey, stopKey, tracks } = this.state;
+      const { trackChanging, listeningForKey, tracks } = this.state;
       if (listeningForKey || trackChanging) {
         trackChanging ? this.setTrackKey(message) : this.setStopKey(message);
       } else {
-        if (stopKey === message[codeType]) {
-          this.stopAllSounds();
-          return;
-        }
         const track = tracks.find((t: Track) => t.keycode === message[codeType]);
         if (track) {
           if (this.filterInput) {
@@ -281,10 +277,20 @@ class App extends Component<{}, AppState> {
     this.setState({ filteredTracks });
   };
 
+  changeTrackName = (trackChanging: Track, name: string) => {
+    const tracks = this.state.tracks;
+    tracks.forEach(track => {
+      if (track === trackChanging) {
+        track.name = name;
+      }
+    });
+    this.setState({ tracks, filteredTracks: tracks });
+    updateBaseTrackInStateStore(tracks);
+  };
+
   render() {
     const { stopKey, listeningForKey } = this.state;
     const { [stopKey]: stopText = "(unset)" } = keycodeNames;
-    const setInput = (ele: HTMLInputElement) => (this.filterInput = ele);
 
     return (
       <div className="App">
@@ -300,16 +306,11 @@ class App extends Component<{}, AppState> {
           filtered={this.filterInput && this.filterInput.value !== ""}
           playSound={this.playSound}
           changeTrackKey={this.changeTrackKey}
+          changeTrackName={this.changeTrackName}
           deleteTrack={this.deleteTrack}
         />
         <div className="management-bar-wrapper">
-          <InputGroup
-            onChange={this.filterTracks}
-            leftIcon="search"
-            placeholder="Filter..."
-            large={true}
-            inputRef={setInput}
-          />
+          <InputGroup onChange={this.filterTracks} leftIcon="search" placeholder="Filter..." large={true} />
           <ControlGroup fill={true}>
             <FileInput onChange={this.fileHandler}>
               <Button className="upload-button" text="Add Sound" icon="plus" />
