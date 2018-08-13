@@ -1,0 +1,445 @@
+PID 21204 received SIGSEGV for address: 0x5c4050d8
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\stackwalker.cpp (941): StackWalker::ShowCallstack
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\segfault-handler.cpp (235): segfault_handler
+00007FFD5FF7CC42 (ntdll): (filename not available): RtlUserThreadStart
+00007FFD5FF35D6B (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FF34593 (ntdll): (filename not available): RtlRaiseException
+00007FFD5C4050D8 (KERNELBASE): (filename not available): RaiseException
+00007FFD5F847E2B (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847DF4 (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847CC8 (RPCRT4): (filename not available): I_RpcSendReceive
+00007FFD5F8807DE (RPCRT4): (filename not available): NdrCorrelationFree
+00007FFD5F84203F (RPCRT4): (filename not available): RpcAsyncInitializeHandle
+00007FFD5F914EBC (RPCRT4): (filename not available): Ndr64AsyncClientCall
+00007FFD5F841C53 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5F841B68 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5BB52D7D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB5349D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB52598 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5F877FF0 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F84E172 (RPCRT4): (filename not available): CStdStubBuffer_Disconnect
+00007FFD5F877566 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F87CC90 (RPCRT4): (filename not available): I_RpcBindingCopy
+00007FFD5F872801 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F871D14 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F8548DA (RPCRT4): (filename not available): RpcAsyncCancelCall
+00007FFD5BB526E8 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB53331 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB515BA (WINSTA): (filename not available): WinStationUnRegisterNotificationEvent
+00007FFD5BB5198E (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD5BB518D1 (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD58D32190 (WTSAPI32): (filename not available): WTSUnRegisterSessionNotification
+00007FF60B7E04F4 (electron): (filename not available): IsSandboxedProcess
+00007FF60B7E01B2 (electron): (filename not available): IsSandboxedProcess
+00007FF60B7E03EA (electron): (filename not available): IsSandboxedProcess
+00007FF609F976C6 (electron): (filename not available): (function-name not available)
+00007FF609F973D1 (electron): (filename not available): (function-name not available)
+00007FF60B543FF2 (electron): (filename not available): IsSandboxedProcess
+00007FF60C2B1056 (electron): (filename not available): IsSandboxedProcess
+00007FF60B091540 (electron): (filename not available): GetHandleVerifier
+00007FF609DABC85 (electron): (filename not available): (function-name not available)
+00007FF60C8A6833 (electron): (filename not available): IsSandboxedProcess
+00007FFD5DA01FE4 (KERNEL32): (filename not available): BaseThreadInitThunk
+00007FFD5FF7CB31 (ntdll): (filename not available): RtlUserThreadStart
+PID 18316 received SIGSEGV for address: 0x5c4050d8
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\stackwalker.cpp (941): StackWalker::ShowCallstack
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\segfault-handler.cpp (235): segfault_handler
+00007FFD5FF7CC42 (ntdll): (filename not available): RtlUserThreadStart
+00007FFD5FF35D6B (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FF34593 (ntdll): (filename not available): RtlRaiseException
+00007FFD5C4050D8 (KERNELBASE): (filename not available): RaiseException
+00007FFD5F847E2B (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847DF4 (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847CC8 (RPCRT4): (filename not available): I_RpcSendReceive
+00007FFD5F8807DE (RPCRT4): (filename not available): NdrCorrelationFree
+00007FFD5F84203F (RPCRT4): (filename not available): RpcAsyncInitializeHandle
+00007FFD5F914EBC (RPCRT4): (filename not available): Ndr64AsyncClientCall
+00007FFD5F841C53 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5F841B68 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5BB52D7D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB5349D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB52598 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5F877FF0 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F84E172 (RPCRT4): (filename not available): CStdStubBuffer_Disconnect
+00007FFD5F877566 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F87CC90 (RPCRT4): (filename not available): I_RpcBindingCopy
+00007FFD5F872801 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F871D14 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F8548DA (RPCRT4): (filename not available): RpcAsyncCancelCall
+00007FFD5BB526E8 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB53331 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB515BA (WINSTA): (filename not available): WinStationUnRegisterNotificationEvent
+00007FFD5BB5198E (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD5BB518D1 (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD58D32190 (WTSAPI32): (filename not available): WTSUnRegisterSessionNotification
+00007FF60B7E04F4 (electron): (filename not available): IsSandboxedProcess
+00007FF60B7E01B2 (electron): (filename not available): IsSandboxedProcess
+00007FF60B7E03EA (electron): (filename not available): IsSandboxedProcess
+00007FF609F976C6 (electron): (filename not available): (function-name not available)
+00007FF609F973D1 (electron): (filename not available): (function-name not available)
+00007FF60B543FF2 (electron): (filename not available): IsSandboxedProcess
+00007FF60C2B1056 (electron): (filename not available): IsSandboxedProcess
+00007FF60B091540 (electron): (filename not available): GetHandleVerifier
+00007FF609DABC85 (electron): (filename not available): (function-name not available)
+00007FF60C8A6833 (electron): (filename not available): IsSandboxedProcess
+00007FFD5DA01FE4 (KERNEL32): (filename not available): BaseThreadInitThunk
+00007FFD5FF7CB31 (ntdll): (filename not available): RtlUserThreadStart
+PID 8680 received SIGSEGV for address: 0x5c4050d8
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\stackwalker.cpp (941): StackWalker::ShowCallstack
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\segfault-handler.cpp (235): segfault_handler
+00007FFD5FF7CC42 (ntdll): (filename not available): RtlUserThreadStart
+00007FFD5FF35D6B (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FF34593 (ntdll): (filename not available): RtlRaiseException
+00007FFD5C4050D8 (KERNELBASE): (filename not available): RaiseException
+00007FFD5F847E2B (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847DF4 (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847CC8 (RPCRT4): (filename not available): I_RpcSendReceive
+00007FFD5F8807DE (RPCRT4): (filename not available): NdrCorrelationFree
+00007FFD5F84203F (RPCRT4): (filename not available): RpcAsyncInitializeHandle
+00007FFD5F914EBC (RPCRT4): (filename not available): Ndr64AsyncClientCall
+00007FFD5F841C53 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5F841B68 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5BB52D7D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB5349D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB52598 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5F877FF0 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F84E172 (RPCRT4): (filename not available): CStdStubBuffer_Disconnect
+00007FFD5F877566 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F87CC90 (RPCRT4): (filename not available): I_RpcBindingCopy
+00007FFD5F872801 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F871D14 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F8548DA (RPCRT4): (filename not available): RpcAsyncCancelCall
+00007FFD5BB526E8 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB53331 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB515BA (WINSTA): (filename not available): WinStationUnRegisterNotificationEvent
+00007FFD5BB5198E (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD5BB518D1 (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD58D32190 (WTSAPI32): (filename not available): WTSUnRegisterSessionNotification
+00007FF60B7E04F4 (electron): (filename not available): IsSandboxedProcess
+00007FF60B7E01B2 (electron): (filename not available): IsSandboxedProcess
+00007FF60B7E03EA (electron): (filename not available): IsSandboxedProcess
+00007FF609F976C6 (electron): (filename not available): (function-name not available)
+00007FF609F973D1 (electron): (filename not available): (function-name not available)
+00007FF60B543FF2 (electron): (filename not available): IsSandboxedProcess
+00007FF60C2B1056 (electron): (filename not available): IsSandboxedProcess
+00007FF60B091540 (electron): (filename not available): GetHandleVerifier
+00007FF609DABC85 (electron): (filename not available): (function-name not available)
+00007FF60C8A6833 (electron): (filename not available): IsSandboxedProcess
+00007FFD5DA01FE4 (KERNEL32): (filename not available): BaseThreadInitThunk
+00007FFD5FF7CB31 (ntdll): (filename not available): RtlUserThreadStart
+PID 22672 received SIGSEGV for address: 0x5c4050d8
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\stackwalker.cpp (941): StackWalker::ShowCallstack
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\segfault-handler.cpp (235): segfault_handler
+00007FFD5FF7CC42 (ntdll): (filename not available): RtlUserThreadStart
+00007FFD5FF35D6B (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FF34593 (ntdll): (filename not available): RtlRaiseException
+00007FFD5C4050D8 (KERNELBASE): (filename not available): RaiseException
+00007FFD5F847E2B (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847DF4 (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847CC8 (RPCRT4): (filename not available): I_RpcSendReceive
+00007FFD5F8807DE (RPCRT4): (filename not available): NdrCorrelationFree
+00007FFD5F84203F (RPCRT4): (filename not available): RpcAsyncInitializeHandle
+00007FFD5F914EBC (RPCRT4): (filename not available): Ndr64AsyncClientCall
+00007FFD5F841C53 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5F841B68 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5BB52D7D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB5349D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB52598 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5F877FF0 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F84E172 (RPCRT4): (filename not available): CStdStubBuffer_Disconnect
+00007FFD5F877566 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F87CC90 (RPCRT4): (filename not available): I_RpcBindingCopy
+00007FFD5F872801 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F871D14 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F8548DA (RPCRT4): (filename not available): RpcAsyncCancelCall
+00007FFD5BB526E8 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB53331 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB515BA (WINSTA): (filename not available): WinStationUnRegisterNotificationEvent
+00007FFD5BB5198E (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD5BB518D1 (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD58D32190 (WTSAPI32): (filename not available): WTSUnRegisterSessionNotification
+00007FF60B7E04F4 (electron): (filename not available): IsSandboxedProcess
+00007FF60B7E01B2 (electron): (filename not available): IsSandboxedProcess
+00007FF60B7E03EA (electron): (filename not available): IsSandboxedProcess
+00007FF609F976C6 (electron): (filename not available): (function-name not available)
+00007FF609F973D1 (electron): (filename not available): (function-name not available)
+00007FF60B543FF2 (electron): (filename not available): IsSandboxedProcess
+00007FF60C2B1056 (electron): (filename not available): IsSandboxedProcess
+00007FF60B091540 (electron): (filename not available): GetHandleVerifier
+00007FF609DABC85 (electron): (filename not available): (function-name not available)
+00007FF60C8A6833 (electron): (filename not available): IsSandboxedProcess
+00007FFD5DA01FE4 (KERNEL32): (filename not available): BaseThreadInitThunk
+00007FFD5FF7CB31 (ntdll): (filename not available): RtlUserThreadStart
+PID 9576 received SIGSEGV for address: 0x5c4050d8
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+PID 6184 received SIGSEGV for address: 0x5c4050d8
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\stackwalker.cpp (941): StackWalker::ShowCallstack
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\segfault-handler.cpp (235): segfault_handler
+00007FFD5FF7CC42 (ntdll): (filename not available): RtlUserThreadStart
+00007FFD5FF35D6B (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FF34593 (ntdll): (filename not available): RtlRaiseException
+00007FFD5C4050D8 (KERNELBASE): (filename not available): RaiseException
+00007FFD5F847E2B (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847DF4 (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847CC8 (RPCRT4): (filename not available): I_RpcSendReceive
+00007FFD5F8807DE (RPCRT4): (filename not available): NdrCorrelationFree
+00007FFD5F84203F (RPCRT4): (filename not available): RpcAsyncInitializeHandle
+00007FFD5F914EBC (RPCRT4): (filename not available): Ndr64AsyncClientCall
+00007FFD5F841C53 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5F841B68 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5BB52D7D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB5349D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB52598 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5F877FF0 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F84E172 (RPCRT4): (filename not available): CStdStubBuffer_Disconnect
+00007FFD5F877566 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F87CC90 (RPCRT4): (filename not available): I_RpcBindingCopy
+00007FFD5F872801 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F871D14 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F8548DA (RPCRT4): (filename not available): RpcAsyncCancelCall
+00007FFD5BB526E8 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB53331 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB515BA (WINSTA): (filename not available): WinStationUnRegisterNotificationEvent
+00007FFD5BB5198E (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD5BB518D1 (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD58D32190 (WTSAPI32): (filename not available): WTSUnRegisterSessionNotification
+00007FF6357A04F4 (electron): (filename not available): IsSandboxedProcess
+00007FF6357A01B2 (electron): (filename not available): IsSandboxedProcess
+00007FF6357A03EA (electron): (filename not available): IsSandboxedProcess
+00007FF633F576C6 (electron): (filename not available): (function-name not available)
+00007FF633F573D1 (electron): (filename not available): (function-name not available)
+00007FF635503FF2 (electron): (filename not available): IsSandboxedProcess
+00007FF636271056 (electron): (filename not available): IsSandboxedProcess
+00007FF635051540 (electron): (filename not available): GetHandleVerifier
+00007FF633D6BC85 (electron): (filename not available): (function-name not available)
+00007FF636866833 (electron): (filename not available): IsSandboxedProcess
+00007FFD5DA01FE4 (KERNEL32): (filename not available): BaseThreadInitThunk
+00007FFD5FF7CB31 (ntdll): (filename not available): RtlUserThreadStart
+PID 13836 received SIGSEGV for address: 0x5c4050d8
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\stackwalker.cpp (941): StackWalker::ShowCallstack
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\segfault-handler.cpp (235): segfault_handler
+00007FFD5FF7CC42 (ntdll): (filename not available): RtlUserThreadStart
+00007FFD5FF35D6B (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FF34593 (ntdll): (filename not available): RtlRaiseException
+00007FFD5C4050D8 (KERNELBASE): (filename not available): RaiseException
+00007FFD5F847E2B (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847DF4 (RPCRT4): (filename not available): RpcRaiseException
+00007FFD5F847CC8 (RPCRT4): (filename not available): I_RpcSendReceive
+00007FFD5F8807DE (RPCRT4): (filename not available): NdrCorrelationFree
+00007FFD5F84203F (RPCRT4): (filename not available): RpcAsyncInitializeHandle
+00007FFD5F914EBC (RPCRT4): (filename not available): Ndr64AsyncClientCall
+00007FFD5F841C53 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5F841B68 (RPCRT4): (filename not available): RpcAsyncCompleteCall
+00007FFD5BB52D7D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB5349D (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB52598 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5F877FF0 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F84E172 (RPCRT4): (filename not available): CStdStubBuffer_Disconnect
+00007FFD5F877566 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F87CC90 (RPCRT4): (filename not available): I_RpcBindingCopy
+00007FFD5F872801 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F871D14 (RPCRT4): (filename not available): RpcServerInqCallAttributesW
+00007FFD5F8548DA (RPCRT4): (filename not available): RpcAsyncCancelCall
+00007FFD5BB526E8 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB53331 (WINSTA): (filename not available): WinStationRegisterConsoleNotification
+00007FFD5BB515BA (WINSTA): (filename not available): WinStationUnRegisterNotificationEvent
+00007FFD5BB5198E (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD5BB518D1 (WINSTA): (filename not available): WinStationUnRegisterConsoleNotification
+00007FFD58D32190 (WTSAPI32): (filename not available): WTSUnRegisterSessionNotification
+00007FF6357A04F4 (electron): (filename not available): IsSandboxedProcess
+00007FF6357A01B2 (electron): (filename not available): IsSandboxedProcess
+00007FF6357A03EA (electron): (filename not available): IsSandboxedProcess
+00007FF633F576C6 (electron): (filename not available): (function-name not available)
+00007FF633F573D1 (electron): (filename not available): (function-name not available)
+00007FF635503FF2 (electron): (filename not available): IsSandboxedProcess
+00007FF636271056 (electron): (filename not available): IsSandboxedProcess
+00007FF635051540 (electron): (filename not available): GetHandleVerifier
+00007FF633D6BC85 (electron): (filename not available): (function-name not available)
+00007FF636866833 (electron): (filename not available): IsSandboxedProcess
+00007FFD5DA01FE4 (KERNEL32): (filename not available): BaseThreadInitThunk
+00007FFD5FF7CB31 (ntdll): (filename not available): RtlUserThreadStart
+PID 26012 received SIGSEGV for address: 0x5ff389c6
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\stackwalker.cpp (941): StackWalker::ShowCallstack
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\segfault-handler.cpp (235): segfault_handler
+00007FFD5FF7CC42 (ntdll): (filename not available): RtlUserThreadStart
+00007FFD5FF35D6B (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FFB3D9E (ntdll): (filename not available): KiUserExceptionDispatcher
+00007FFD5FF389C6 (ntdll): (filename not available): RtlImageNtHeaderEx
+00007FFD5FF39A79 (ntdll): (filename not available): RtlImageRvaToSection
+00007FFD5FF3A93C (ntdll): (filename not available): RtlVirtualUnwind
+00007FFD5FF3AA91 (ntdll): (filename not available): RtlImageNtHeader
+00007FFD5FF33A52 (ntdll): (filename not available): LdrAccessResource
+00007FFD5FF3306E (ntdll): (filename not available): LdrFindResource_U
+00007FFD5C3CC065 (KERNELBASE): (filename not available): FindResourceExW
+00007FFD5D86F0B6 (USER32): (filename not available): AdjustWindowRectEx
+00007FFD5D86EEE7 (USER32): (filename not available): AdjustWindowRectEx
+00007FFD5D86D61F (USER32): (filename not available): LoadCursorW
+00007FFD5D8717E7 (USER32): (filename not available): CopyImage
+00007FFD5D871434 (USER32): (filename not available): ReleaseDC
+00007FFD5D8716E6 (USER32): (filename not available): CopyImage
+00007FFD5D889559 (USER32): (filename not available): wvsprintfW
+00007FFD5FFB3D44 (ntdll): (filename not available): KiUserCallbackDispatcher
+00007FFD5D1A1164 (win32u): (filename not available): NtUserMessageCall
+00007FFD5D869F52 (USER32): (filename not available): GetWindowTextW
+00007FFD5D869782 (USER32): (filename not available): ClientToScreen
+00007FFD5AA34202 (UxTheme): (filename not available): Ordinal119
+00007FFD5AA320DA (UxTheme): (filename not available): GetThemeEnumValue
+00007FFD5AA3B5EE (UxTheme): (filename not available): Ordinal119
+00007FFD5AA39EA1 (UxTheme): (filename not available): Ordinal119
+00007FFD5D869C97 (USER32): (filename not available): GetWindowTextW
+00007FFD5D8679C8 (USER32): (filename not available): SetWindowTextW
+00007FFD5D867826 (USER32): (filename not available): SetWindowTextW
+00007FFD5D86B85D (USER32): (filename not available): CallWindowProcW
+00007FFD5D86ADE0 (USER32): (filename not available): SendMessageW
+00007FFD5D86AB88 (USER32): (filename not available): SendMessageW
+00007FFD5247684F (COMCTL32): (filename not available): Ordinal384
+00007FFD52475D79 (COMCTL32): (filename not available): Ordinal384
+00007FFD52475A70 (COMCTL32): (filename not available): Ordinal384
+00007FFD524714B4 (COMCTL32): (filename not available): Ordinal384
+00007FFD5247641A (COMCTL32): (filename not available): Ordinal384
+00007FFD52472AF4 (COMCTL32): (filename not available): Ordinal384
+00007FFD52477509 (COMCTL32): (filename not available): Ordinal384
+00007FFD5D8676F1 (USER32): (filename not available): SetWindowTextW
+00007FFD5D86790D (USER32): (filename not available): SetWindowTextW
+00007FFD5D867826 (USER32): (filename not available): SetWindowTextW
+00007FFD5D86B85D (USER32): (filename not available): CallWindowProcW
+00007FFD5D86ADE0 (USER32): (filename not available): SendMessageW
+00007FFD5D87C311 (USER32): (filename not available): CreateWindowInBandEx
+00007FFD5D88B6F4 (USER32): (filename not available): DialogBoxIndirectParamAorW
+00007FFD5D88B5D2 (USER32): (filename not available): DialogBoxIndirectParamAorW
+00007FFD5D88B568 (USER32): (filename not available): DialogBoxIndirectParamW
+00007FFD5254CE36 (COMCTL32): (filename not available): Ordinal234
+00007FFD524769AB (COMCTL32): (filename not available): Ordinal384
+00007FF633EEA4D7 (electron): (filename not available): (function-name not available)
+00007FF633E5C96B (electron): (filename not available): (function-name not available)
+00007FFD36D13830 (node): (filename not available): v8::internal::compiler::CommonOperatorBuilder::CreateFrameStateFunctionInfo
+00007FFD36C61A13 (node): (filename not available): icu_59::Collator::safeClone
+00007FFD36C60843 (node): (filename not available): icu_59::Collator::safeClone
+00007FFD36C6072B (node): (filename not available): icu_59::Collator::safeClone
+00000058AD8047A1 ((module-name not available)): (filename not available): (function-name not available)
+000000A5CA1025D1 ((module-name not available)): (filename not available): (function-name not available)
+000003F105202351 ((module-name not available)): (filename not available): (function-name not available)
+0000000000000001 ((module-name not available)): (filename not available): (function-name not available)
+0000025BA44A44D0 ((module-name not available)): (filename not available): (function-name not available)
+0000005F446FDD50 ((module-name not available)): (filename not available): (function-name not available)
+0000003439DFADF1 ((module-name not available)): (filename not available): (function-name not available)
+00000058AD8046E1 ((module-name not available)): (filename not available): (function-name not available)
+0000005F446FDC90 ((module-name not available)): (filename not available): (function-name not available)
+0000000000000006 ((module-name not available)): (filename not available): (function-name not available)
+0000005F446FDD20 ((module-name not available)): (filename not available): (function-name not available)
+00000058AD8F51BE ((module-name not available)): (filename not available): (function-name not available)
+000003F105202311 ((module-name not available)): (filename not available): (function-name not available)
+00000085E447C3E1 ((module-name not available)): (filename not available): (function-name not available)
+0000000600000000 ((module-name not available)): (filename not available): (function-name not available)
+0000003439DFADA9 ((module-name not available)): (filename not available): (function-name not available)
+00000278E50EF1A1 ((module-name not available)): (filename not available): (function-name not available)
+0000030EC3634D29 ((module-name not available)): (filename not available): (function-name not available)
+0000000000000016 ((module-name not available)): (filename not available): (function-name not available)
+0000005F446FDD80 ((module-name not available)): (filename not available): (function-name not available)
+00000058AD8BFA33 ((module-name not available)): (filename not available): (function-name not available)
+0000003439DFADD1 ((module-name not available)): (filename not available): (function-name not available)
+0000030EC3634D29 ((module-name not available)): (filename not available): (function-name not available)
+00000085E447C3E1 ((module-name not available)): (filename not available): (function-name not available)
+PID 26012 received SIGSEGV for address: 0x5ff389c6
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\stackwalker.cpp (941): StackWalker::ShowCallstack
+c:\users\edward\dev\soundboard\node_modules\segfault-handler\src\segfault-handler.cpp (235): segfault_handler
+00007FFD5FF7CC42 (ntdll): (filename not available): RtlUserThreadStart
+00007FFD5FF35D6B (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FFB3D9E (ntdll): (filename not available): KiUserExceptionDispatcher
+00007FFD5FF389C6 (ntdll): (filename not available): RtlImageNtHeaderEx
+00007FFD5FF36786 (ntdll): (filename not available): RtlWalkFrameChain
+00007FFD5FF33247 (ntdll): (filename not available): LdrAccessResource
+00007FFD5FF3A9B2 (ntdll): (filename not available): RtlVirtualUnwind
+00007FFD5FF3AA91 (ntdll): (filename not available): RtlImageNtHeader
+00007FFD5FF33A52 (ntdll): (filename not available): LdrAccessResource
+00007FFD5FF3306E (ntdll): (filename not available): LdrFindResource_U
+00007FFD5C3CC065 (KERNELBASE): (filename not available): FindResourceExW
+00007FFD5D86F0B6 (USER32): (filename not available): AdjustWindowRectEx
+00007FFD5D86EEE7 (USER32): (filename not available): AdjustWindowRectEx
+00007FFD5D86D61F (USER32): (filename not available): LoadCursorW
+00007FFD5D8717E7 (USER32): (filename not available): CopyImage
+00007FFD5D871434 (USER32): (filename not available): ReleaseDC
+00007FFD5D8716E6 (USER32): (filename not available): CopyImage
+00007FFD5D889559 (USER32): (filename not available): wvsprintfW
+00007FFD5FFB3D44 (ntdll): (filename not available): KiUserCallbackDispatcher
+00007FFD5D1A1164 (win32u): (filename not available): NtUserMessageCall
+00007FFD5D869F52 (USER32): (filename not available): GetWindowTextW
+00007FFD5D869782 (USER32): (filename not available): ClientToScreen
+00007FFD5AA34202 (UxTheme): (filename not available): Ordinal119
+00007FFD5AA320DA (UxTheme): (filename not available): GetThemeEnumValue
+00007FFD5AA3B5EE (UxTheme): (filename not available): Ordinal119
+00007FFD5AA39EA1 (UxTheme): (filename not available): Ordinal119
+00007FFD5D869C97 (USER32): (filename not available): GetWindowTextW
+00007FFD5D8679C8 (USER32): (filename not available): SetWindowTextW
+00007FFD5D867826 (USER32): (filename not available): SetWindowTextW
+00007FFD5D86B85D (USER32): (filename not available): CallWindowProcW
+00007FFD5D86ADE0 (USER32): (filename not available): SendMessageW
+00007FFD5D86AB88 (USER32): (filename not available): SendMessageW
+00007FFD5247684F (COMCTL32): (filename not available): Ordinal384
+00007FFD52475D79 (COMCTL32): (filename not available): Ordinal384
+00007FFD52475A70 (COMCTL32): (filename not available): Ordinal384
+00007FFD524714B4 (COMCTL32): (filename not available): Ordinal384
+00007FFD5247641A (COMCTL32): (filename not available): Ordinal384
+00007FFD52472AF4 (COMCTL32): (filename not available): Ordinal384
+00007FFD52477509 (COMCTL32): (filename not available): Ordinal384
+00007FFD5D8676F1 (USER32): (filename not available): SetWindowTextW
+00007FFD5D86790D (USER32): (filename not available): SetWindowTextW
+00007FFD5D867826 (USER32): (filename not available): SetWindowTextW
+00007FFD5D86B85D (USER32): (filename not available): CallWindowProcW
+00007FFD5D86ADE0 (USER32): (filename not available): SendMessageW
+00007FFD5D87C311 (USER32): (filename not available): CreateWindowInBandEx
+00007FFD5D88B6F4 (USER32): (filename not available): DialogBoxIndirectParamAorW
+00007FFD5D88B5D2 (USER32): (filename not available): DialogBoxIndirectParamAorW
+00007FFD5D88B568 (USER32): (filename not available): DialogBoxIndirectParamW
+00007FFD5254CE36 (COMCTL32): (filename not available): Ordinal234
+00007FFD524769AB (COMCTL32): (filename not available): Ordinal384
+00007FF633EEA4D7 (electron): (filename not available): (function-name not available)
+00007FF633E5C96B (electron): (filename not available): (function-name not available)
+00007FFD36D13830 (node): (filename not available): v8::internal::compiler::CommonOperatorBuilder::CreateFrameStateFunctionInfo
+00007FFD36C61A13 (node): (filename not available): icu_59::Collator::safeClone
+00007FFD36C60843 (node): (filename not available): icu_59::Collator::safeClone
+00007FFD36C6072B (node): (filename not available): icu_59::Collator::safeClone
+00000058AD8047A1 ((module-name not available)): (filename not available): (function-name not available)
+000000A5CA1025D1 ((module-name not available)): (filename not available): (function-name not available)
+000003F105202351 ((module-name not available)): (filename not available): (function-name not available)
+0000000000000001 ((module-name not available)): (filename not available): (function-name not available)
+0000025BA44A44D0 ((module-name not available)): (filename not available): (function-name not available)
+0000005F446FDD50 ((module-name not available)): (filename not available): (function-name not available)
+0000003439DFADF1 ((module-name not available)): (filename not available): (function-name not available)
+00000058AD8046E1 ((module-name not available)): (filename not available): (function-name not available)
+0000005F446FDC90 ((module-name not available)): (filename not available): (function-name not available)
+0000000000000006 ((module-name not available)): (filename not available): (function-name not available)
+0000005F446FDD20 ((module-name not available)): (filename not available): (function-name not available)
+00000058AD8F51BE ((module-name not available)): (filename not available): (function-name not available)
+000003F105202311 ((module-name not available)): (filename not available): (function-name not available)
+00000085E447C3E1 ((module-name not available)): (filename not available): (function-name not available)
+0000000600000000 ((module-name not available)): (filename not available): (function-name not available)
+0000003439DFADA9 ((module-name not available)): (filename not available): (function-name not available)
+00000278E50EF1A1 ((module-name not available)): (filename not available): (function-name not available)
+0000030EC3634D29 ((module-name not available)): (filename not available): (function-name not available)
+0000000000000016 ((module-name not available)): (filename not available): (function-name not available)
+0000005F446FDD80 ((module-name not available)): (filename not available): (function-name not available)
+00000058AD8BFA33 ((module-name not available)): (filename not available): (function-name not available)
+0000003439DFADD1 ((module-name not available)): (filename not available): (function-name not available)
+0000030EC3634D29 ((module-name not available)): (filename not available): (function-name not available)
+00000085E447C3E1 ((module-name not available)): (filename not available): (function-name not available)
+PID 26012 received SIGSEGV for address: 0x5ff389c6
+SymInit: Symbol-SearchPath: '.;C:\Users\Edward\Dev\soundboard;C:\Users\Edward\Dev\soundboard\node_modules\electron\dist;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'Edward'
+OS-Version: 10.0.16299 () 0x300-0x1
