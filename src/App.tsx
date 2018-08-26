@@ -26,6 +26,7 @@ import {
   UNSET_KEYCODE,
   VALID_EXTENSIONS
 } from "./types";
+import { getDevices } from "./utils/devices";
 
 const electron = window.require("electron");
 
@@ -75,19 +76,8 @@ class App extends Component<{}, AppState> {
     });
   }
 
-  updateDevices = async (): Promise<{ [deviceId: string]: MediaDeviceInfo }> => {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const audioDevices = devices.filter(device => device.kind === "audiooutput");
-    return audioDevices.reduce((audioDeviceMap, audioDevice) => {
-      return {
-        ...audioDeviceMap,
-        [audioDevice.deviceId]: audioDevice
-      };
-    }, {});
-  };
-
   initializeDevicesAndOutputs = async () => {
-    this.updateDevices().then(devices => {
+    getDevices().then(devices => {
       const [defaultDevice, backupDevice] = Object.values(devices);
       const { outputs } = this.state;
       let [output1, output2] = outputs;
@@ -133,7 +123,7 @@ class App extends Component<{}, AppState> {
     });
     // Set listener to update device list if the devices available change
     navigator.mediaDevices.ondevicechange = () => {
-      this.updateDevices().then(devices => this.setState({ devices }));
+      getDevices().then(devices => this.setState({ devices }));
     };
 
     // Set up file drop events
