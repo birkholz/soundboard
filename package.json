@@ -69,7 +69,7 @@
         "prepush": "npm-run-all typecheck lint",
         "sanity": "npm-run-all clean typecheck lint test clean compile clean",
         "start": "ts-node fuse",
-        "test": "jest",
+        "test": "jest --watch",
         "typecheck": "tsc -p . --noEmit --pretty"
     },
     "lint-staged": {
