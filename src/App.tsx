@@ -6,7 +6,6 @@ import { Component } from "react";
 import { Devices } from "./components/Devices";
 import FileInput from "./components/FileInput";
 import { TrackList } from "./components/TrackList";
-import { getTrackDataFromFile } from "./helpers";
 import { keycodeNames } from "./keycodes";
 import {
   getInitialAppState,
@@ -26,7 +25,8 @@ import {
   UNSET_KEYCODE,
   VALID_EXTENSIONS
 } from "./types";
-import { getDevices } from "./utils/devices";
+import { getDevices, getOutputs } from "./utils/devices";
+import { getTrackDataFromFile } from "./utils/tracks";
 
 const electron = window.require("electron");
 
@@ -68,7 +68,7 @@ class App extends Component<{}, AppState> {
       trackChanging: null,
       devices: {},
       listeningForKey: false,
-      outputs: [Object.create(MediaDeviceInfo), Object.create(MediaDeviceInfo)],
+      outputs: [{}, {}] as Outputs,
       sources: [],
       stopKey: UNSET_KEYCODE,
       dragging: 0,
@@ -77,29 +77,16 @@ class App extends Component<{}, AppState> {
   }
 
   initializeDevicesAndOutputs = async () => {
-    getDevices().then(devices => {
-      const [defaultDevice, backupDevice] = Object.values(devices);
-      const { outputs } = this.state;
-      let [output1, output2] = outputs;
-      if (!devices[output1.deviceId]) {
-        output1 = defaultDevice;
-      }
-      if (!devices[output2.deviceId]) {
-        // Attempt to default to VB CABLE Input
-        output2 = Object.values(devices).find(({ label }) => label.includes("CABLE Input")) || backupDevice;
-      }
-
-      const updatedOutputs: Outputs = [output1, output2];
-      this.setState({
-        devices,
-        outputs: updatedOutputs
-      });
-      updateOutputsInStore(updatedOutputs);
+    const devices = await getDevices();
+    const outputs = await getOutputs(devices, this.state.outputs);
+    this.setState({
+      devices,
+      outputs
     });
+    updateOutputsInStore(outputs);
   };
 
   componentDidMount() {
-    // Set initial outputs
     this.initializeDevicesAndOutputs();
 
     // Set global keybinding listener
@@ -207,10 +194,6 @@ class App extends Component<{}, AppState> {
       audioElement.pause();
     });
     this.playingTracks = [];
-  };
-
-  logFileError = (err: string) => {
-    console.log(err);
   };
 
   changeTrackKey = (track: Track) => {
