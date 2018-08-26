@@ -1,6 +1,6 @@
-import { Track, UNSET_KEYCODE } from "./types";
+import { Track, UNSET_KEYCODE } from "../types";
 
-export const getSoundFileAsDataURI = (soundFile: File): Promise<string> =>
+const getSoundFileAsDataURI = (soundFile: File): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = function() {
