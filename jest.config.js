@@ -1,7 +1,7 @@
 module.exports = {
   setupFiles: ["./test/setup.ts"],
   transform: {
-    ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    ".(ts|tsx)": "ts-jest"
   },
   moduleNameMapper: {
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
@@ -19,6 +19,5 @@ module.exports = {
       statements: 95
     }
   },
-  collectCoverage: false,
-  mapCoverage: true
+  collectCoverage: false
 };
